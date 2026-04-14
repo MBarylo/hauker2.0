@@ -1,8 +1,8 @@
 import { IsOptional, IsString, Length } from 'class-validator';
 
-export class UpdateUserDto {
+export class UpdatePostDto {
   @IsOptional()
   @IsString()
-  @Length(3, 20)
-  username!: string;
+  @Length(1, 200)
+  content!: string;
 }
