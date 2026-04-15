@@ -1,31 +1,53 @@
-import { motion } from 'framer-motion'
-import { usePost } from './PostContext'
+import { motion } from 'framer-motion';
+import { useEffect, useState } from 'react';
+import { api } from '../api';
+
+type User = {
+  id: string;
+  username: string;
+};
+
+type Post = {
+  id: string;
+  content: string;
+  authorId: string;
+};
 
 const Profile = () => {
-  const { posts, currentUser } = usePost()
+  const [user, setUser] = useState<User | null>(null);
+  const [posts, setPosts] = useState<Post[]>([]);
 
-  if (!currentUser) {
-    return <p className="empty">You aren't entered yet</p>
+  useEffect(() => {
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      setUser(parsed);
+
+      api.get('/posts').then((res) => {
+        const userPosts = res.data.filter(
+          (p: Post) => p.authorId === parsed.id,
+        );
+        setPosts(userPosts);
+      });
+    }
+  }, []);
+
+  if (!user) {
+    return <p className="empty">You aren't logged in</p>;
   }
 
-  const totalLikes = posts.reduce((sum, p) => sum + p.likes, 0)
   return (
     <motion.div
       className="profile"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
     >
       <h2>My profile</h2>
-      <div
-        className="avatar"
-        dangerouslySetInnerHTML={{ __html: currentUser.photo }}
-      />
-      <p>Author: {currentUser.name}</p>
-      <p>Posts: {posts.length}</p>
-      <p>Likes: {totalLikes}</p>
-    </motion.div>
-  )
-}
 
-export default Profile
+      <p>Username: {user.username}</p>
+      <p>Posts: {posts.length}</p>
+    </motion.div>
+  );
+};
+
+export default Profile;

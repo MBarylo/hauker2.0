@@ -1,38 +1,50 @@
-import { useMemo } from 'react'
-import Post from './Post'
-import { usePost } from './PostContext'
-import { AnimatePresence, motion } from 'framer-motion'
+import { useEffect, useState, useMemo } from 'react';
+import { api } from '../api';
+import Post from './Post';
 
-const PostList = ({ searchItem }: { searchItem: string }) => {
-  const { posts } = usePost()
+type PostType = {
+  id: string;
+  content: string;
+  authorId: string;
+};
+
+type User = {
+  id: string;
+  username: string;
+};
+
+const PostList = ({ posts, setPosts, searchItem }: any) => {
+  const [users, setUsers] = useState<User[]>([]);
+
+  useEffect(() => {
+    api.get('/users').then((res) => setUsers(res.data));
+  }, []);
+
+  const getAuthorName = (authorId: string) => {
+    const user = users.find((u) => u.id === authorId);
+    return user ? user.username : 'Unknown';
+  };
+
   const filtered = useMemo(
     () =>
-      posts.filter((post) =>
-        post.text.toLowerCase().includes(searchItem.toLowerCase()),
+      posts.filter((p: PostType) =>
+        p.content.toLowerCase().includes(searchItem.toLowerCase()),
       ),
     [posts, searchItem],
-  )
+  );
 
-  if (filtered.length === 0) {
-    return <p className="empty">Nothing found</p>
-  }
   return (
-    <div className="post-list">
-      <AnimatePresence>
-        {filtered.map((p) => (
-          <motion.div
-            key={p.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <Post post={p} />
-          </motion.div>
-        ))}
-      </AnimatePresence>
+    <div>
+      {filtered.map((p: PostType) => (
+        <Post
+          key={p.id}
+          post={p}
+          authorName={getAuthorName(p.authorId)}
+          setPosts={setPosts}
+        />
+      ))}
     </div>
-  )
-}
+  );
+};
 
-export default PostList
+export default PostList;

@@ -1,84 +1,57 @@
-import { useState } from 'react'
-import { usePost } from './PostContext'
-import { motion } from 'framer-motion'
-import CommentForm from './CommentForm'
-import type PostClass from './pack/PostClass'
+import { api } from '../api';
+import { useState } from 'react';
 
-const Post = ({ post }: { post: PostClass }) => {
-  const { removePost, likePost, removeComment } = usePost()
-  const [like, setLike] = useState(false)
-  const [showComments, setShowComments] = useState(false) // стан для показу коментарів
+const Post = ({ post, authorName, setPosts }: any) => {
+  const user = JSON.parse(localStorage.getItem('user')!);
+  const isOwner = user?.id === post.authorId;
 
-  const clickLike = () => {
-    setLike(true)
-    likePost(post.id)
-    setTimeout(() => setLike(false), 300)
-  }
+  const [editing, setEditing] = useState(false);
+  const [newContent, setNewContent] = useState(post.content);
+
+  const deletePost = async () => {
+    await api.delete(`/posts/${post.id}`, {
+      data: { userId: user.id },
+    });
+
+    setPosts((prev: any) => prev.filter((p: any) => p.id !== post.id));
+  };
+
+  const updatePost = async () => {
+    const res = await api.patch(`/posts/${post.id}`, {
+      content: newContent,
+    });
+
+    setPosts((prev: any) =>
+      prev.map((p: any) => (p.id === post.id ? res.data : p)),
+    );
+
+    setEditing(false);
+  };
 
   return (
-    <motion.div
-      className="post"
-      whileHover={{ scale: 1.02 }}
-      transition={{ type: 'spring', stiffness: 300 }}
-    >
-      <p className="post-author">{post.author}</p>
-      <p className="post-text">{post.text}</p>
-      <p className="post-time">
-        🕒 {post.createdAt ? new Date(post.createdAt).toLocaleString() : '—'}
-      </p>
+    <div className="post">
+      <p>{authorName}</p>
 
-      <div className="post-footer">
-        <motion.button
-          type="button"
-          className="like-btn"
-          onClick={clickLike}
-          animate={{ scale: like ? 1.5 : 1 }}
-          transition={{ type: 'spring', stiffness: 500, damping: 10 }}
-        >
-          ❤️ {post.likes}
-        </motion.button>
+      {editing ? (
+        <>
+          <input
+            value={newContent}
+            onChange={(e) => setNewContent(e.target.value)}
+          />
+          <button onClick={updatePost}>Save</button>
+        </>
+      ) : (
+        <p>{post.content}</p>
+      )}
 
-        <button
-          type="button"
-          className="delete-btn"
-          onClick={() => removePost(post.id)}
-        >
-          Delete
-        </button>
-      </div>
+      {isOwner && (
+        <>
+          <button onClick={() => setEditing(!editing)}>Edit</button>
+          <button onClick={deletePost}>Delete</button>
+        </>
+      )}
+    </div>
+  );
+};
 
-      {/* Кнопка показу/приховування коментарів */}
-      <button
-        type="button"
-        className="open-comments-btn"
-        onClick={() => setShowComments((prev) => !prev)}
-      >
-        {showComments ? 'Hide comments' : 'Open comments'}
-      </button>
-
-      {/* Коментарі */}
-      <div className={`comments ${showComments ? 'show' : ''}`}>
-        {post.comments.map((c) => (
-          <div key={c.id} className="comment">
-            <span>
-              {new Date(c.createdAt).toLocaleTimeString([], {
-                hour: '2-digit',
-                minute: '2-digit',
-              })}{' '}
-              {c.author}: {c.text}
-            </span>
-
-            <button type="button" onClick={() => removeComment(post.id, c.id)}>
-              ✖
-            </button>
-          </div>
-        ))}
-
-        {/* Форма коментаря під постом */}
-        <CommentForm postId={post.id} />
-      </div>
-    </motion.div>
-  )
-}
-
-export default Post
+export default Post;

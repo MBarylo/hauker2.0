@@ -1,5 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreatePostDto } from './dto/create-post.dto';
+import { ForbiddenException } from '@nestjs/common';
 
 type Post = {
   id: string;
@@ -41,11 +42,14 @@ export class PostsService {
     return post;
   }
 
-  delete(id: string) {
-    const index = this.posts.findIndex((p) => p.id === id);
-    if (index === -1) throw new NotFoundException('Post not found');
+  delete(id: string, userId: string) {
+    const post = this.getById(id);
 
-    this.posts.splice(index, 1);
-    return { message: 'Post deleted' };
+    if (post.authorId !== userId) {
+      throw new ForbiddenException('You cannot delete чужий пост');
+    }
+
+    this.posts = this.posts.filter((p) => p.id !== id);
+    return { message: 'Deleted' };
   }
 }
