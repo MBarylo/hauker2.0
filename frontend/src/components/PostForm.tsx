@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import PostList from './PostList';
 import { api } from '../api';
 import type { FormEvent } from 'react';
+import { Button, Input, Textarea, Text } from '@chakra-ui/react';
 
 type PostType = {
   id: string;
@@ -50,24 +51,29 @@ const PostForm = () => {
   };
 
   return (
-    <div>
-      <motion.form onSubmit={submit}>
-        <input
+    <div className="feed-inner">
+      <motion.form className="post-form" onSubmit={submit}>
+        <Input
+          size="md"
           value={searchItem}
           onChange={(e) => setSearchItem(e.target.value)}
           placeholder="Search..."
         />
 
-        <textarea
+        <Textarea
+          size="md"
           value={content}
           onChange={(e) => setContent(e.target.value)}
           ref={inputRef}
+          placeholder="What's new?"
         />
 
-        <button type="submit">Post</button>
+        <Button size="md" type="submit">
+          Post
+        </Button>
       </motion.form>
 
-      {error && <p className="error">{error}</p>}
+      {error && <Text className="error">{error}</Text>}
 
       <PostList posts={posts} setPosts={setPosts} searchItem={searchItem} />
     </div>

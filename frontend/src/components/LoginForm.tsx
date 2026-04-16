@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { api } from '../api';
 import { useNavigate } from 'react-router-dom';
+import { Input, Button } from '@chakra-ui/react';
 
 const LoginForm = () => {
   const [value, setValue] = useState('');
@@ -41,14 +42,19 @@ const LoginForm = () => {
   };
 
   return (
-    <div>
-      <input
-        value={value}
-        ref={ref}
-        onChange={(e) => setValue(e.target.value)}
-      />
+    <div className="feed-inner">
+      <form className="post-form">
+        <Input
+          size="md"
+          value={value}
+          ref={ref}
+          onChange={(e) => setValue(e.target.value)}
+        />
 
-      <button onClick={handleLogin}>Login</button>
+        <Button size="md" onClick={handleLogin}>
+          Login
+        </Button>
+      </form>
 
       {error && <p>{error}</p>}
     </div>

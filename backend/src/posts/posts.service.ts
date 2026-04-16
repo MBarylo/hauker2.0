@@ -13,7 +13,7 @@ export class PostsService {
   private posts: Post[] = [];
 
   getAll(): Post[] {
-    return this.posts;
+    return this.posts.reverse();
   }
 
   getById(id: string): Post {

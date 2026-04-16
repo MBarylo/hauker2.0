@@ -1,5 +1,6 @@
 import { api } from '../api';
 import { useState } from 'react';
+import { Button, Input } from '@chakra-ui/react';
 
 const Post = ({ post, authorName, setPosts }: any) => {
   const user = JSON.parse(localStorage.getItem('user')!);
@@ -30,25 +31,36 @@ const Post = ({ post, authorName, setPosts }: any) => {
 
   return (
     <div className="post">
-      <p>{authorName}</p>
+      <p className="post-author">{authorName}</p>
 
       {editing ? (
         <>
-          <input
+          <Input
+            size="md"
             value={newContent}
             onChange={(e) => setNewContent(e.target.value)}
           />
-          <button onClick={updatePost}>Save</button>
+
+          <div className="post-footer">
+            <Button size="xs" onClick={updatePost}>
+              Save
+            </Button>
+          </div>
         </>
       ) : (
-        <p>{post.content}</p>
+        <p className="post-text">{post.content}</p>
       )}
 
-      {isOwner && (
-        <>
-          <button onClick={() => setEditing(!editing)}>Edit</button>
-          <button onClick={deletePost}>Delete</button>
-        </>
+      {isOwner && !editing && (
+        <div className="post-footer">
+          <Button size="xs" onClick={() => setEditing(!editing)}>
+            Edit
+          </Button>
+
+          <Button size="xs" onClick={deletePost}>
+            Delete
+          </Button>
+        </div>
       )}
     </div>
   );
