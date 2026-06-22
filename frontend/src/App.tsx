@@ -4,10 +4,10 @@ import PostForm from './components/PostForm';
 import Profile from './components/Profile';
 import LoginForm from './components/LoginForm';
 import { AnimatePresence, motion } from 'framer-motion';
-//import { usePost } from './components/PostContext';
+import { usePost } from './components/PostContext';
 
 function App() {
-  //const { setTheme, theme } = usePost();
+  const { setTheme, theme } = usePost();
   const location = useLocation();
 
   return (
@@ -27,9 +27,9 @@ function App() {
           </Link>
         </nav>
 
-        {/* <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+        <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
           Switch theme
-        </button> */}
+        </button>
       </aside>
 
       <main className="feed">
