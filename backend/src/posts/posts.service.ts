@@ -6,6 +6,8 @@ type Post = {
   id: string;
   content: string;
   authorId: string;
+  repostById?: string;
+  originalPostId?: string;
 };
 
 @Injectable()
@@ -13,7 +15,7 @@ export class PostsService {
   private posts: Post[] = [];
 
   getAll(): Post[] {
-    return this.posts.reverse();
+    return [...this.posts].reverse();
   }
 
   getById(id: string): Post {
@@ -30,6 +32,32 @@ export class PostsService {
 
     this.posts.push(newPost);
     return newPost;
+  }
+
+  repost(postId: string, userId: string) {
+    const original = this.getById(postId);
+
+    const repost: Post = {
+      id: Date.now().toString(),
+      content: original.content,
+      authorId: original.authorId,
+      repostById: userId,
+      originalPostId: postId,
+    };
+
+    this.posts.push(repost);
+    return repost;
+  }
+
+  deleteRepost(postId: string, userId: string) {
+    const post = this.getById(postId);
+
+    if (post.repostById !== userId) {
+      throw new ForbiddenException('You cannot delete this repost');
+    }
+
+    this.posts = this.posts.filter((p) => p.id !== postId);
+    return { message: 'Deleted' };
   }
 
   update(id: string, content?: string): Post {

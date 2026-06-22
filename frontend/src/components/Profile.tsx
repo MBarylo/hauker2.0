@@ -1,21 +1,12 @@
 import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { api } from '../api';
-
-type User = {
-  id: string;
-  username: string;
-};
-
-type Post = {
-  id: string;
-  content: string;
-  authorId: string;
-};
+import type { PostType } from './pack/PostType';
+import type { User } from './pack/User';
 
 const Profile = () => {
   const [user, setUser] = useState<User | null>(null);
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [posts, setPosts] = useState<PostType[]>([]);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -25,7 +16,8 @@ const Profile = () => {
 
       api.get('/posts').then((res) => {
         const userPosts = res.data.filter(
-          (p: Post) => p.authorId === parsed.id,
+          (p: PostType) =>
+            p.authorId === parsed.id || p.repostById === parsed.id,
         );
         setPosts(userPosts);
       });

@@ -4,12 +4,7 @@ import PostList from './PostList';
 import { api } from '../api';
 import type { FormEvent } from 'react';
 import { Button, Input, Textarea, Text } from '@chakra-ui/react';
-
-type PostType = {
-  id: string;
-  content: string;
-  authorId: string;
-};
+import type { PostType } from './pack/PostType';
 
 const PostForm = () => {
   const [content, setContent] = useState('');
@@ -18,17 +13,6 @@ const PostForm = () => {
   const [posts, setPosts] = useState<PostType[]>([]);
 
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
-
-  const user = JSON.parse(localStorage.getItem('user') || 'null');
-  if (!user) {
-    return (
-      <div className="feed-inner">
-        <p className="empty">
-          Please <a href="/login">log in</a> to post.
-        </p>
-      </div>
-    );
-  }
 
   useEffect(() => {
     inputRef.current?.focus();
@@ -53,6 +37,17 @@ const PostForm = () => {
       setError(err.response?.data?.message || 'Error');
     }
   };
+
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  if (!user) {
+    return (
+      <div className="feed-inner">
+        <p className="empty">
+          Please <a href="/login">log in</a> to post.
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="feed-inner">

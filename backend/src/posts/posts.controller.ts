@@ -30,9 +30,19 @@ export class PostsController {
     return this.postsService.create(dto);
   }
 
+  @Post(':id/repost')
+  repost(@Param('id') id: string, @Body('userId') userId: string) {
+    return this.postsService.repost(id, userId);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdatePostDto) {
     return this.postsService.update(id, dto.content);
+  }
+
+  @Delete(':id/repost')
+  deleteRepost(@Param('id') id: string, @Body('userId') userId: string) {
+    return this.postsService.deleteRepost(id, userId);
   }
 
   @Delete(':id')

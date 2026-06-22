@@ -26,16 +26,15 @@ const PostList = ({ posts, setPosts, searchItem }: any) => {
 
   return (
     <div>
-      {filtered
-        .map((p: PostType) => (
-          <Post
-            key={p.id}
-            post={p}
-            authorName={getAuthorName(p.authorId)}
-            setPosts={setPosts}
-          />
-        ))
-        .reverse()}
+      {filtered.map((p: PostType) => (
+        <Post
+          key={p.id}
+          post={p}
+          authorName={getAuthorName(p.authorId)}
+          repostByName={p.repostById ? getAuthorName(p.repostById) : undefined}
+          setPosts={setPosts}
+        />
+      ))}
     </div>
   );
 };

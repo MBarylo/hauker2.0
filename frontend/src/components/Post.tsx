@@ -1,11 +1,20 @@
 import { api } from '../api';
 import { useState } from 'react';
-import { Button, Input } from '@chakra-ui/react';
+import { Button, Input, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
+import type { PostType } from './pack/PostType';
 
-const Post = ({ post, authorName, setPosts }: any) => {
+type Props = {
+  post: PostType;
+  authorName: string;
+  repostByName?: string; // ім'я того хто репостнув
+  setPosts: any;
+};
+
+const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
   const user = JSON.parse(localStorage.getItem('user')!);
   const isOwner = user?.id === post.authorId;
+  const isMyRepost = user?.id === post.repostById;
   const navigate = useNavigate();
 
   const [editing, setEditing] = useState(false);
@@ -31,11 +40,32 @@ const Post = ({ post, authorName, setPosts }: any) => {
     setEditing(false);
   };
 
+  const handleRepost = async () => {
+    console.log('reposting post id:', post.id);
+    console.log('userId:', user.id);
+    const res = await api.post(`/posts/${post.id}/repost`, { userId: user.id });
+    setPosts((prev: any) => [res.data, ...prev]);
+  };
+
+  const handleDeleteRepost = async () => {
+    await api.delete(`/posts/${post.id}/repost`, { data: { userId: user.id } });
+    setPosts((prev: any) => prev.filter((p: any) => p.id !== post.id));
+  };
+
   return (
     <div
       className="post"
-      onClick={() => !editing && navigate(`/post/${post.id}`)}
+      onClick={() =>
+        !editing && navigate(`/post/${post.originalPostId ?? post.id}`)
+      }
     >
+      {/* плашка репосту */}
+      {post.repostById && (
+        <Text fontSize="xs" color="gray.500" mb={1}>
+          🔁 {repostByName ?? 'Someone'} reposted
+        </Text>
+      )}
+
       <p className="post-author">{authorName}</p>
 
       {editing ? (
@@ -62,28 +92,55 @@ const Post = ({ post, authorName, setPosts }: any) => {
         <p className="post-text">{post.content}</p>
       )}
 
-      {isOwner && !editing && (
-        <div className="post-footer">
+      <div className="post-footer">
+        {/* кнопка репосту — для всіх крім власника репосту */}
+
+        {user && !isMyRepost && !post.repostById && (
           <Button
             size="xs"
             onClick={(e) => {
               e.stopPropagation();
-              setEditing(true);
+              handleRepost();
             }}
           >
-            Edit
+            🔁 Repost
           </Button>
+        )}
+        {/* видалити свій репост */}
+        {isMyRepost && (
           <Button
             size="xs"
             onClick={(e) => {
               e.stopPropagation();
-              deletePost();
+              handleDeleteRepost();
             }}
           >
-            Delete
+            ✕ Remove repost
           </Button>
-        </div>
-      )}
+        )}
+        {isOwner && !post.repostById && !editing && (
+          <>
+            <Button
+              size="xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                setEditing(true);
+              }}
+            >
+              Edit
+            </Button>
+            <Button
+              size="xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                deletePost();
+              }}
+            >
+              Delete
+            </Button>
+          </>
+        )}
+      </div>
     </div>
   );
 };
