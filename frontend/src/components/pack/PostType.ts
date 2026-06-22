@@ -6,7 +6,7 @@ export type PostType = {
   authorId: string;
   repostById?: string; // хто репостнув
   originalPostId?: string; // id оригінального поста
-  // likes: number
+  likedBy: string[];
   // comments: PostComment[]
   // createdAt: number
 };

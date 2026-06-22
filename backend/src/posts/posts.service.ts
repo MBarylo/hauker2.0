@@ -8,6 +8,7 @@ type Post = {
   authorId: string;
   repostById?: string;
   originalPostId?: string;
+  likedBy: string[];
 };
 
 @Injectable()
@@ -27,6 +28,7 @@ export class PostsService {
   create(dto: CreatePostDto) {
     const newPost = {
       id: Date.now().toString(),
+      likedBy: [],
       ...dto,
     };
 
@@ -43,10 +45,36 @@ export class PostsService {
       authorId: original.authorId,
       repostById: userId,
       originalPostId: postId,
+      likedBy: original.likedBy,
     };
 
     this.posts.push(repost);
     return repost;
+  }
+
+  toggleLike(postId: string, userId: string) {
+    // лайк завжди йде до оригіналу
+    const post = this.getById(postId);
+    const originalPost = post.originalPostId
+      ? this.getById(post.originalPostId)
+      : post;
+
+    const alreadyLiked = originalPost.likedBy.includes(userId);
+
+    if (alreadyLiked) {
+      originalPost.likedBy = originalPost.likedBy.filter((id) => id !== userId);
+    } else {
+      originalPost.likedBy.push(userId);
+    }
+
+    // оновлюємо likedBy у всіх репостах цього оригіналу
+    this.posts.forEach((p) => {
+      if (p.originalPostId === originalPost.id) {
+        p.likedBy = originalPost.likedBy;
+      }
+    });
+
+    return originalPost;
   }
 
   deleteRepost(postId: string, userId: string) {

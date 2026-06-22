@@ -78,7 +78,13 @@ const PostPage = () => {
       </Button>
 
       <div className="post">
-        <p className="post-author">{authorName}</p>
+        <p
+          className="post-author"
+          onClick={() => navigate(`/user/${post.authorId}`)}
+          style={{ cursor: 'pointer' }}
+        >
+          {authorName}
+        </p>
         <p className="post-text">{post.content}</p>
       </div>
 
@@ -87,7 +93,13 @@ const PostPage = () => {
 
         {comments.map((c) => (
           <div key={c.id} className="post">
-            <p className="post-author">{getUsername(c.authorId)}</p>
+            <p
+              className="post-author"
+              onClick={() => navigate(`/user/${c.authorId}`)}
+              style={{ cursor: 'pointer' }}
+            >
+              {getUsername(c.authorId)}
+            </p>
             <p className="post-text">{c.content}</p>
             {user?.id === c.authorId && (
               <div className="post-footer">

@@ -35,6 +35,11 @@ export class PostsController {
     return this.postsService.repost(id, userId);
   }
 
+  @Post(':id/like')
+  toggleLike(@Param('id') id: string, @Body('userId') userId: string) {
+    return this.postsService.toggleLike(id, userId);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdatePostDto) {
     return this.postsService.update(id, dto.content);

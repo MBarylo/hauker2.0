@@ -15,6 +15,7 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
   const user = JSON.parse(localStorage.getItem('user')!);
   const isOwner = user?.id === post.authorId;
   const isMyRepost = user?.id === post.repostById;
+  const isLiked = post.likedBy?.includes(user?.id);
   const navigate = useNavigate();
 
   const [editing, setEditing] = useState(false);
@@ -52,6 +53,20 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
     setPosts((prev: any) => prev.filter((p: any) => p.id !== post.id));
   };
 
+  const handleLike = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const targetId = post.originalPostId ?? post.id;
+    const res = await api.post(`/posts/${targetId}/like`, { userId: user.id });
+    // оновлюємо likedBy у поточному пості і в усіх репостах
+    setPosts((prev: any) =>
+      prev.map((p: any) =>
+        p.id === res.data.id || p.originalPostId === res.data.id
+          ? { ...p, likedBy: res.data.likedBy }
+          : p,
+      ),
+    );
+  };
+
   return (
     <div
       className="post"
@@ -66,7 +81,16 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
         </Text>
       )}
 
-      <p className="post-author">{authorName}</p>
+      <p
+        className="post-author"
+        onClick={(e) => {
+          e.stopPropagation();
+          navigate(`/user/${post.authorId}`);
+        }}
+        style={{ cursor: 'pointer' }}
+      >
+        {authorName}
+      </p>
 
       {editing ? (
         <>
@@ -138,6 +162,15 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
             >
               Delete
             </Button>
+            {user && (
+              <Button
+                size="xs"
+                onClick={handleLike}
+                variant={isLiked ? 'solid' : 'outline'}
+              >
+                ❤️ {post.likedBy?.length ?? 0}
+              </Button>
+            )}
           </>
         )}
       </div>
