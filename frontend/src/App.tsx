@@ -3,6 +3,7 @@ import { Routes, Route, Link, useLocation } from 'react-router-dom';
 import PostForm from './components/PostForm';
 import Profile from './components/Profile';
 import LoginForm from './components/LoginForm';
+import RegisterForm from './components/RegisterForm';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePost } from './components/PostContext';
 import { useEffect } from 'react';
@@ -86,6 +87,19 @@ function App() {
                     exit={{ opacity: 0, x: 50 }}
                   >
                     <LoginForm />
+                  </motion.div>
+                }
+              />
+
+              <Route
+                path="/register"
+                element={
+                  <motion.div
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                  >
+                    <RegisterForm />
                   </motion.div>
                 }
               />

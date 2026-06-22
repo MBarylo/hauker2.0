@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { api } from '../api';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Input, Button, Text } from '@chakra-ui/react';
+import type { User } from './pack/User';
 
 const RegisterForm = () => {
   const location = useLocation();
@@ -24,7 +25,7 @@ const RegisterForm = () => {
 
     try {
       const res = await api.get('/users');
-      const exists = res.data.find((u: any) => u.username === value.trim());
+      const exists = res.data.find((u: User) => u.username === value.trim());
 
       if (exists) {
         setError('Username already taken');

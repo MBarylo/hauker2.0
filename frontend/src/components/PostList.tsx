@@ -1,17 +1,8 @@
 import { useEffect, useState, useMemo } from 'react';
 import { api } from '../api';
 import Post from './Post';
-
-type PostType = {
-  id: string;
-  content: string;
-  authorId: string;
-};
-
-type User = {
-  id: string;
-  username: string;
-};
+import type { User } from './pack/User';
+import type { PostType } from './pack/PostType';
 
 const PostList = ({ posts, setPosts, searchItem }: any) => {
   const [users, setUsers] = useState<User[]>([]);

@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react';
 import { api } from '../api';
 import { useNavigate } from 'react-router-dom';
 import { Input, Button } from '@chakra-ui/react';
+import type { User } from './pack/User';
 
 const LoginForm = () => {
   const [value, setValue] = useState('');
@@ -23,7 +24,7 @@ const LoginForm = () => {
     try {
       const res = await api.get('/users');
       const users = res.data;
-      const user = users.find((u: any) => u.username === value.trim());
+      const user = users.find((u: User) => u.username === value.trim());
 
       if (!user) {
         navigate('/register', { state: { username: value.trim() } });
