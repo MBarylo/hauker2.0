@@ -162,16 +162,16 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
             >
               Delete
             </Button>
-            {user && (
-              <Button
-                size="xs"
-                onClick={handleLike}
-                variant={isLiked ? 'solid' : 'outline'}
-              >
-                ❤️ {post.likedBy?.length ?? 0}
-              </Button>
-            )}
           </>
+        )}
+        {user && (
+          <Button
+            size="xs"
+            onClick={handleLike}
+            variant={isLiked ? 'solid' : 'outline'}
+          >
+            ❤️ {post.likedBy?.length ?? 0}
+          </Button>
         )}
       </div>
     </div>
