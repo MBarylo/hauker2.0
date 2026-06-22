@@ -18,7 +18,7 @@ const PostList = ({ posts, setPosts, searchItem }: any) => {
 
   useEffect(() => {
     api.get('/users').then((res) => setUsers(res.data));
-  }, []);
+  }, [posts]);
 
   const getAuthorName = (authorId: string) => {
     const user = users.find((u) => u.id === authorId);

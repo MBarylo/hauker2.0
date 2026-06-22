@@ -21,17 +21,15 @@ const LoginForm = () => {
         return;
       }
 
-      const users = await api.get('/users');
-
-      const existingUser = users.data.find((u: any) => u.username === value);
-
-      if (existingUser) {
-        localStorage.setItem('user', JSON.stringify(existingUser));
-      } else {
-        const res = await api.post('/users', {
-          username: value,
+      const stored = localStorage.getItem('user');
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        api.get('/users').then((res) => {
+          const exists = res.data.find((u: any) => u.id === parsed.id);
+          if (!exists) {
+            localStorage.removeItem('user'); // юзера немає на бекенді — чистимо
+          }
         });
-        localStorage.setItem('user', JSON.stringify(res.data));
       }
 
       setError('');

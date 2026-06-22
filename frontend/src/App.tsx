@@ -5,10 +5,25 @@ import Profile from './components/Profile';
 import LoginForm from './components/LoginForm';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePost } from './components/PostContext';
+import { useEffect } from 'react';
+import { api } from './api';
 
 function App() {
   const { setTheme, theme } = usePost();
   const location = useLocation();
+
+  useEffect(() => {
+    const stored = localStorage.getItem('user');
+    if (stored) {
+      const parsed = JSON.parse(stored);
+      api.get('/users').then((res) => {
+        const exists = res.data.find((u: any) => u.id === parsed.id);
+        if (!exists) {
+          localStorage.removeItem('user');
+        }
+      });
+    }
+  }, []);
 
   return (
     <div className="layout">

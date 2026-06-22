@@ -19,6 +19,17 @@ const PostForm = () => {
 
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
+  if (!user) {
+    return (
+      <div className="feed-inner">
+        <p className="empty">
+          Please <a href="/login">log in</a> to post.
+        </p>
+      </div>
+    );
+  }
+
   useEffect(() => {
     inputRef.current?.focus();
 
@@ -30,13 +41,6 @@ const PostForm = () => {
     e.preventDefault();
 
     try {
-      const user = JSON.parse(localStorage.getItem('user')!);
-
-      if (!user) {
-        setError('Login first');
-        return;
-      }
-
       const res = await api.post('/posts', {
         content,
         authorId: user.id,
