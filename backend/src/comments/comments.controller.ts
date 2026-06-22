@@ -1,34 +1,26 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Body, Param } from '@nestjs/common';
 import { CommentsService } from './comments.service';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Controller('comments')
 export class CommentsController {
-  constructor(private readonly commentsService: CommentsService) {}
+  constructor(private commentsService: CommentsService) {}
 
+  // GET /comments/:postId — отримати коментарі поста
+  @Get(':postId')
+  getByPostId(@Param('postId') postId: string) {
+    return this.commentsService.getByPostId(postId);
+  }
+
+  // POST /comments — створити коментар
   @Post()
-  create(@Body() createCommentDto: CreateCommentDto) {
-    return this.commentsService.create(createCommentDto);
+  create(@Body() dto: CreateCommentDto) {
+    return this.commentsService.create(dto);
   }
 
-  @Get()
-  findAll() {
-    return this.commentsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.commentsService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateCommentDto: UpdateCommentDto) {
-    return this.commentsService.update(+id, updateCommentDto);
-  }
-
+  // DELETE /comments/:id — видалити коментар
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.commentsService.remove(+id);
+  delete(@Param('id') id: string, @Body('userId') userId: string) {
+    return this.commentsService.delete(id, userId);
   }
 }

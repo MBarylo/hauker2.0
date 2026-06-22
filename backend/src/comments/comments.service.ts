@@ -1,26 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { CreateCommentDto } from './dto/create-comment.dto';
-import { UpdateCommentDto } from './dto/update-comment.dto';
+
+type Comment = {
+  id: string;
+  content: string;
+  authorId: string;
+  postId: string;
+};
 
 @Injectable()
 export class CommentsService {
-  create(createCommentDto: CreateCommentDto) {
-    return 'This action adds a new comment';
+  private comments: Comment[] = [];
+
+  // повертає всі коментарі до конкретного поста
+  getByPostId(postId: string): Comment[] {
+    return this.comments.filter((c) => c.postId === postId);
   }
 
-  findAll() {
-    return `This action returns all comments`;
+  create(dto: CreateCommentDto): Comment {
+    const newComment = {
+      id: Date.now().toString(),
+      ...dto,
+    };
+    this.comments.push(newComment);
+    return newComment;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} comment`;
-  }
+  delete(id: string, userId: string): { message: string } {
+    const comment = this.comments.find((c) => c.id === id);
+    if (!comment) throw new NotFoundException('Comment not found');
 
-  update(id: number, updateCommentDto: UpdateCommentDto) {
-    return `This action updates a #${id} comment`;
-  }
+    // тільки автор може видалити свій коментар
+    if (comment.authorId !== userId) {
+      throw new NotFoundException('Forbidden');
+    }
 
-  remove(id: number) {
-    return `This action removes a #${id} comment`;
+    this.comments = this.comments.filter((c) => c.id !== id);
+    return { message: 'Deleted' };
   }
 }
