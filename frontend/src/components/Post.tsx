@@ -1,10 +1,12 @@
 import { api } from '../api';
 import { useState } from 'react';
 import { Button, Input } from '@chakra-ui/react';
+import { useNavigate } from 'react-router-dom';
 
 const Post = ({ post, authorName, setPosts }: any) => {
   const user = JSON.parse(localStorage.getItem('user')!);
   const isOwner = user?.id === post.authorId;
+  const navigate = useNavigate();
 
   const [editing, setEditing] = useState(false);
   const [newContent, setNewContent] = useState(post.content);
@@ -30,7 +32,10 @@ const Post = ({ post, authorName, setPosts }: any) => {
   };
 
   return (
-    <div className="post">
+    <div
+      className="post"
+      onClick={() => !editing && navigate(`/post/${post.id}`)}
+    >
       <p className="post-author">{authorName}</p>
 
       {editing ? (
@@ -39,10 +44,16 @@ const Post = ({ post, authorName, setPosts }: any) => {
             size="md"
             value={newContent}
             onChange={(e) => setNewContent(e.target.value)}
+            onClick={(e) => e.stopPropagation()}
           />
-
           <div className="post-footer">
-            <Button size="xs" onClick={updatePost}>
+            <Button
+              size="xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                updatePost();
+              }}
+            >
               Save
             </Button>
           </div>
@@ -53,11 +64,22 @@ const Post = ({ post, authorName, setPosts }: any) => {
 
       {isOwner && !editing && (
         <div className="post-footer">
-          <Button size="xs" onClick={() => setEditing(!editing)}>
+          <Button
+            size="xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              setEditing(true);
+            }}
+          >
             Edit
           </Button>
-
-          <Button size="xs" onClick={deletePost}>
+          <Button
+            size="xs"
+            onClick={(e) => {
+              e.stopPropagation();
+              deletePost();
+            }}
+          >
             Delete
           </Button>
         </div>

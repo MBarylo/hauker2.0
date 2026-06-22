@@ -4,14 +4,16 @@ import PostForm from './components/PostForm';
 import Profile from './components/Profile';
 import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
+import PostPage from './components/PostPage';
 import { AnimatePresence, motion } from 'framer-motion';
 import { usePost } from './components/PostContext';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { api } from './api';
 
 function App() {
   const { setTheme, theme } = usePost();
   const location = useLocation();
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -22,9 +24,14 @@ function App() {
         if (!exists) {
           localStorage.removeItem('user');
         }
+        setReady(true); // ← після перевірки
       });
+    } else {
+      setReady(true); // ← якщо юзера немає — одразу готово
     }
   }, []);
+
+  if (!ready) return null;
 
   return (
     <div className="layout">
@@ -64,7 +71,6 @@ function App() {
                   </motion.div>
                 }
               />
-
               <Route
                 path="/profile"
                 element={
@@ -77,7 +83,6 @@ function App() {
                   </motion.div>
                 }
               />
-
               <Route
                 path="/login"
                 element={
@@ -90,7 +95,6 @@ function App() {
                   </motion.div>
                 }
               />
-
               <Route
                 path="/register"
                 element={
@@ -100,6 +104,19 @@ function App() {
                     exit={{ opacity: 0, x: -50 }}
                   >
                     <RegisterForm />
+                  </motion.div>
+                }
+              />
+              tsx
+              <Route
+                path="/post/:id"
+                element={
+                  <motion.div
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                  >
+                    <PostPage />
                   </motion.div>
                 }
               />

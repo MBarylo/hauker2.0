@@ -6,7 +6,7 @@ import {
   useCallback,
 } from 'react';
 import type PostType from './pack/PostType';
-import type PostComment from './pack/PostComment';
+import type PostComment from './pack/Comment';
 import type { ReactNode } from 'react';
 
 type Theme = 'light' | 'dark';
