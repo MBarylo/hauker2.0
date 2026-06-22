@@ -15,24 +15,22 @@ const LoginForm = () => {
   }, []);
 
   const handleLogin = async () => {
+    if (!value.trim()) {
+      setError('Enter username');
+      return;
+    }
+
     try {
-      if (!value.trim()) {
-        setError('Enter username');
+      const res = await api.get('/users');
+      const users = res.data;
+      const user = users.find((u: any) => u.username === value.trim());
+
+      if (!user) {
+        navigate('/register', { state: { username: value.trim() } });
         return;
       }
 
-      const stored = localStorage.getItem('user');
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        api.get('/users').then((res) => {
-          const exists = res.data.find((u: any) => u.id === parsed.id);
-          if (!exists) {
-            localStorage.removeItem('user'); // юзера немає на бекенді — чистимо
-          }
-        });
-      }
-
-      setError('');
+      localStorage.setItem('user', JSON.stringify(user));
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error');
