@@ -15,7 +15,9 @@ function App() {
   const location = useLocation();
   const [ready, setReady] = useState(false);
 
-  const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
+  const [currentUser, setCurrentUser] = useState(
+    JSON.parse(localStorage.getItem('user') || 'null'),
+  );
 
   useEffect(() => {
     const stored = localStorage.getItem('user');
@@ -25,11 +27,12 @@ function App() {
         const exists = res.data.find((u: any) => u.id === parsed.id);
         if (!exists) {
           localStorage.removeItem('user');
+          setCurrentUser(null); // ← оновлюємо стан
         }
-        setReady(true); // ← після перевірки
+        setReady(true);
       });
     } else {
-      setReady(true); // ← якщо юзера немає — одразу готово
+      setReady(true);
     }
   }, []);
 

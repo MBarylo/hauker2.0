@@ -14,6 +14,10 @@ const UserProfile = () => {
   const currentUser = JSON.parse(localStorage.getItem('user') || 'null');
   const isOwnProfile = currentUser?.id === id;
 
+  console.log('currentUser.id:', currentUser?.id);
+  console.log('id from params:', id);
+  console.log('isOwnProfile:', isOwnProfile);
+
   const [user, setUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<PostType[]>([]);
   const [users, setUsers] = useState<User[]>([]);
