@@ -11,14 +11,21 @@ const PostForm = () => {
   const [searchItem, setSearchItem] = useState('');
   const [error, setError] = useState('');
   const [posts, setPosts] = useState<PostType[]>([]);
+  const [bookmarkedIds, setBookmarkedIds] = useState<string[]>([]);
 
   const inputRef = useRef<HTMLTextAreaElement | null>(null);
 
   useEffect(() => {
     inputRef.current?.focus();
-
-    // завантаження постів
     api.get('/posts').then((res) => setPosts(res.data));
+  }, []);
+
+  useEffect(() => {
+    if (user) {
+      api.get(`/users/${user.id}/bookmarks`).then((res) => {
+        setBookmarkedIds(res.data.map((b: any) => b.postId));
+      });
+    }
   }, []);
 
   const submit = async (e: FormEvent<HTMLFormElement>) => {
@@ -74,7 +81,13 @@ const PostForm = () => {
 
       {error && <Text className="error">{error}</Text>}
 
-      <PostList posts={posts} setPosts={setPosts} searchItem={searchItem} />
+      <PostList
+        posts={posts}
+        setPosts={setPosts}
+        searchItem={searchItem}
+        bookmarkedIds={bookmarkedIds}
+        setBookmarkedIds={setBookmarkedIds}
+      />
     </div>
   );
 };

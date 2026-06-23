@@ -4,7 +4,13 @@ import Post from './Post';
 import type { User } from './pack/User';
 import type { PostType } from './pack/PostType';
 
-const PostList = ({ posts, setPosts, searchItem }: any) => {
+const PostList = ({
+  posts,
+  setPosts,
+  searchItem,
+  bookmarkedIds,
+  setBookmarkedIds,
+}: any) => {
   const [users, setUsers] = useState<User[]>([]);
 
   useEffect(() => {
@@ -33,6 +39,8 @@ const PostList = ({ posts, setPosts, searchItem }: any) => {
           authorName={getAuthorName(p.authorId)}
           repostByName={p.repostById ? getAuthorName(p.repostById) : undefined}
           setPosts={setPosts}
+          isBookmarked={bookmarkedIds.includes(p.originalPostId ?? p.id)}
+          setBookmarkedIds={setBookmarkedIds}
         />
       ))}
     </div>

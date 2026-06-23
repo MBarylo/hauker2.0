@@ -30,6 +30,16 @@ export class UsersController {
     return this.usersService.create(dto);
   }
 
+  @Get(':id/bookmarks')
+  getBookmarks(@Param('id') id: string) {
+    return this.usersService.getBookmarks(id);
+  }
+
+  @Post(':id/bookmarks')
+  toggleBookmark(@Param('id') id: string, @Body('postId') postId: string) {
+    return this.usersService.toggleBookmark(id, postId);
+  }
+
   @Patch(':id')
   update(@Param('id') id: string, @Body() dto: UpdateUserDto) {
     return this.usersService.update(id, dto.username);

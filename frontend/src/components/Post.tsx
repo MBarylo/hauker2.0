@@ -1,5 +1,5 @@
 import { api } from '../api';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button, Input, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import type { PostType } from './pack/PostType';
@@ -9,9 +9,18 @@ type Props = {
   authorName: string;
   repostByName?: string; // ім'я того хто репостнув
   setPosts: any;
+  isBookmarked?: boolean;
+  setBookmarkedIds?: any;
 };
 
-const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
+const Post = ({
+  post,
+  authorName,
+  repostByName,
+  setPosts,
+  isBookmarked,
+  setBookmarkedIds,
+}: Props) => {
   const user = JSON.parse(localStorage.getItem('user')!);
   const isOwner = user?.id === post.authorId;
   const isMyRepost = user?.id === post.repostById;
@@ -22,6 +31,17 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
 
   const [editing, setEditing] = useState(false);
   const [newContent, setNewContent] = useState(post.content);
+  const [copied, setCopied] = useState(false);
+
+  const [bookmarked, setBookmarked] = useState(false);
+
+  useEffect(() => {
+    setLikedBy(post.likedBy ?? []);
+  }, [post.likedBy]);
+
+  useEffect(() => {
+    setBookmarked(isBookmarked ?? false);
+  }, [isBookmarked]);
 
   const deletePost = async () => {
     await api.delete(`/posts/${post.id}`, {
@@ -72,6 +92,26 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
           ? { ...p, likedBy: res.data.likedBy }
           : p,
       ),
+    );
+  };
+
+  const handleCopyLink = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const postId = post.originalPostId ?? post.id;
+    navigator.clipboard.writeText(`${window.location.origin}/post/${postId}`);
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleBookmark = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const postId = post.originalPostId ?? post.id;
+    const res = await api.post(`/users/${user.id}/bookmarks`, { postId });
+    setBookmarked(res.data.bookmarked);
+    setBookmarkedIds?.((prev: string[]) =>
+      res.data.bookmarked
+        ? [...prev, postId]
+        : prev.filter((id) => id !== postId),
     );
   };
 
@@ -168,6 +208,22 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
             >
               💬 {post.commentCount ?? 0}
             </Button>
+            <Button
+              size="xs"
+              onClick={handleBookmark}
+              variant={bookmarked ? 'solid' : 'outline'}
+              colorScheme="yellow"
+            >
+              🔖 {bookmarked ? 'Saved' : 'Save'}
+            </Button>
+            <Button size="xs" onClick={handleCopyLink}>
+              🔗
+            </Button>
+            {copied && (
+              <Text fontSize="xs" color="green.400">
+                ✓ Link copied
+              </Text>
+            )}
           </>
         )}
         {isOwner && !post.repostById && !editing && (

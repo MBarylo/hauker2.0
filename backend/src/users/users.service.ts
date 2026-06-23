@@ -3,12 +3,15 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
+import { Bookmark } from './entities/bookmark.entity';
 
 @Injectable()
 export class UsersService {
   constructor(
     @InjectRepository(User)
     private usersRepository: Repository<User>,
+    @InjectRepository(Bookmark)
+    private bookmarksRepository: Repository<Bookmark>,
   ) {}
 
   getAll(): Promise<User[]> {
@@ -41,5 +44,32 @@ export class UsersService {
     const user = await this.getById(id);
     await this.usersRepository.remove(user);
     return { message: 'User deleted' };
+  }
+
+  async getBookmarks(userId: string): Promise<Bookmark[]> {
+    return this.bookmarksRepository.findBy({ userId });
+  }
+
+  async toggleBookmark(
+    userId: string,
+    postId: string,
+  ): Promise<{ bookmarked: boolean }> {
+    const existing = await this.bookmarksRepository.findOneBy({
+      userId,
+      postId,
+    });
+
+    if (existing) {
+      await this.bookmarksRepository.remove(existing);
+      return { bookmarked: false };
+    }
+
+    const bookmark = this.bookmarksRepository.create({
+      id: Date.now().toString(),
+      userId,
+      postId,
+    });
+    await this.bookmarksRepository.save(bookmark);
+    return { bookmarked: true };
   }
 }
