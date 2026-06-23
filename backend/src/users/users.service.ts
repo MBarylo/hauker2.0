@@ -1,50 +1,45 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { User } from './entities/user.entity';
 import { CreateUserDto } from './dto/create-user.dto';
-
-type User = {
-  id: string;
-  username: string;
-};
 
 @Injectable()
 export class UsersService {
-  private users: User[] = [];
+  constructor(
+    @InjectRepository(User)
+    private usersRepository: Repository<User>,
+  ) {}
 
-  getAll(): User[] {
-    return this.users;
+  getAll(): Promise<User[]> {
+    return this.usersRepository.find();
   }
 
-  getById(id: string): User {
-    const user = this.users.find((u) => u.id === id);
+  async getById(id: string): Promise<User> {
+    const user = await this.usersRepository.findOneBy({ id });
     if (!user) throw new NotFoundException('User not found');
     return user;
   }
 
-  create(dto: CreateUserDto) {
-    const newUser: User = {
+  async create(dto: CreateUserDto): Promise<User> {
+    const newUser = this.usersRepository.create({
       id: Date.now().toString(),
       username: dto.username,
-    };
-
-    this.users.push(newUser);
-    return newUser;
+    });
+    return this.usersRepository.save(newUser);
   }
 
-  update(id: string, username?: string) {
-    const user = this.getById(id);
-
+  async update(id: string, username?: string): Promise<User> {
+    const user = await this.getById(id);
     if (username !== undefined) {
       user.username = username;
     }
-
-    return user;
+    return this.usersRepository.save(user);
   }
 
-  delete(id: string) {
-    const index = this.users.findIndex((u) => u.id === id);
-    if (index === -1) throw new NotFoundException('User not found');
-
-    this.users.splice(index, 1);
+  async delete(id: string): Promise<{ message: string }> {
+    const user = await this.getById(id);
+    await this.usersRepository.remove(user);
     return { message: 'User deleted' };
   }
 }

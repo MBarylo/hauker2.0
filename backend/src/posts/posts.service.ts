@@ -1,111 +1,136 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Post } from './entities/post.entity';
 import { CreatePostDto } from './dto/create-post.dto';
-import { ForbiddenException } from '@nestjs/common';
-
-type Post = {
-  id: string;
-  content: string;
-  authorId: string;
-  repostById?: string;
-  originalPostId?: string;
-  likedBy: string[];
-};
+import { CommentsService } from '../comments/comments.service';
 
 @Injectable()
 export class PostsService {
-  private posts: Post[] = [];
+  constructor(
+    @InjectRepository(Post)
+    private postsRepository: Repository<Post>,
+    private commentsService: CommentsService,
+  ) {}
 
-  getAll(): Post[] {
-    return [...this.posts].reverse();
+  async getAll() {
+    const posts = await this.postsRepository.find();
+    const reversed = [...posts].reverse();
+    return Promise.all(
+      reversed.map(async (p) => {
+        const originalId = p.originalPostId ?? p.id;
+        const original = p.originalPostId
+          ? await this.postsRepository.findOneBy({ id: originalId })
+          : p;
+        const repostCount = await this.postsRepository.countBy({
+          originalPostId: originalId,
+        });
+        const comments = await this.commentsService.getByPostId(originalId);
+        return {
+          ...p,
+          likedBy: original?.likedBy ?? p.likedBy,
+          repostCount,
+          commentCount: comments.length,
+        };
+      }),
+    );
   }
 
-  getById(id: string): Post {
-    const post = this.posts.find((p) => p.id === id);
+  async getById(id: string) {
+    const post = await this.postsRepository.findOneBy({ id });
     if (!post) throw new NotFoundException('Post not found');
-    return post;
+    const originalId = post.originalPostId ?? post.id;
+    const repostCount = await this.postsRepository.countBy({
+      originalPostId: originalId,
+    });
+    const comments = await this.commentsService.getByPostId(originalId);
+    return {
+      ...post,
+      repostCount,
+      commentCount: comments.length,
+    };
   }
 
-  create(dto: CreatePostDto) {
-    const newPost = {
+  async create(dto: CreatePostDto): Promise<Post> {
+    const newPost = this.postsRepository.create({
       id: Date.now().toString(),
       likedBy: [],
       ...dto,
-    };
-
-    this.posts.push(newPost);
-    return newPost;
+    });
+    return this.postsRepository.save(newPost);
   }
 
-  repost(postId: string, userId: string) {
-    const original = this.getById(postId);
-
-    const repost: Post = {
+  async repost(postId: string, userId: string) {
+    const original = await this.postsRepository.findOneBy({ id: postId });
+    if (!original) throw new NotFoundException('Post not found');
+    const repost = this.postsRepository.create({
       id: Date.now().toString(),
       content: original.content,
       authorId: original.authorId,
-      repostById: userId,
+      repostById: String(userId),
       originalPostId: postId,
-      likedBy: original.likedBy,
-    };
-
-    this.posts.push(repost);
-    return repost;
+      likedBy: [],
+    });
+    return this.postsRepository.save(repost);
   }
 
-  toggleLike(postId: string, userId: string) {
-    // лайк завжди йде до оригіналу
-    const post = this.getById(postId);
+  async toggleLike(postId: string, userId: string) {
+    const post = await this.postsRepository.findOneBy({ id: postId });
+    if (!post) throw new NotFoundException('Post not found');
     const originalPost = post.originalPostId
-      ? this.getById(post.originalPostId)
+      ? await this.postsRepository.findOneBy({ id: post.originalPostId })
       : post;
+    if (!originalPost) throw new NotFoundException('Original post not found');
 
-    const alreadyLiked = originalPost.likedBy.includes(userId);
+    const id = String(userId);
+    const alreadyLiked = originalPost.likedBy.includes(id);
 
-    if (alreadyLiked) {
-      originalPost.likedBy = originalPost.likedBy.filter((id) => id !== userId);
-    } else {
-      originalPost.likedBy.push(userId);
-    }
+    originalPost.likedBy = alreadyLiked
+      ? originalPost.likedBy.filter((u) => u !== id)
+      : [...originalPost.likedBy, id];
 
-    // оновлюємо likedBy у всіх репостах цього оригіналу
-    this.posts.forEach((p) => {
-      if (p.originalPostId === originalPost.id) {
-        p.likedBy = originalPost.likedBy;
-      }
+    await this.postsRepository.save(originalPost);
+
+    // оновлюємо likedBy у всіх репостах
+    const reposts = await this.postsRepository.findBy({
+      originalPostId: originalPost.id,
     });
+    await Promise.all(
+      reposts.map((r) => {
+        r.likedBy = originalPost.likedBy;
+        return this.postsRepository.save(r);
+      }),
+    );
 
     return originalPost;
   }
 
-  deleteRepost(postId: string, userId: string) {
-    const post = this.getById(postId);
-
-    if (post.repostById !== userId) {
+  async deleteRepost(postId: string, userId: string) {
+    const post = await this.postsRepository.findOneBy({ id: postId });
+    if (!post) throw new NotFoundException('Post not found');
+    if (post.repostById !== String(userId))
       throw new ForbiddenException('You cannot delete this repost');
-    }
-
-    this.posts = this.posts.filter((p) => p.id !== postId);
+    await this.postsRepository.remove(post);
     return { message: 'Deleted' };
   }
 
-  update(id: string, content?: string): Post {
-    const post = this.getById(id);
-
-    if (content !== undefined) {
-      post.content = content;
-    }
-
-    return post;
+  async update(id: string, content?: string) {
+    const post = await this.postsRepository.findOneBy({ id });
+    if (!post) throw new NotFoundException('Post not found');
+    if (content !== undefined) post.content = content;
+    return this.postsRepository.save(post);
   }
 
-  delete(id: string, userId: string) {
-    const post = this.getById(id);
-
-    if (post.authorId !== userId) {
+  async delete(id: string, userId: string) {
+    const post = await this.postsRepository.findOneBy({ id });
+    if (!post) throw new NotFoundException('Post not found');
+    if (post.authorId !== String(userId))
       throw new ForbiddenException('You cannot delete чужий пост');
-    }
-
-    this.posts = this.posts.filter((p) => p.id !== id);
+    await this.postsRepository.remove(post);
     return { message: 'Deleted' };
   }
 }

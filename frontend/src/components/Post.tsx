@@ -15,8 +15,10 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
   const user = JSON.parse(localStorage.getItem('user')!);
   const isOwner = user?.id === post.authorId;
   const isMyRepost = user?.id === post.repostById;
-  const isLiked = post.likedBy?.includes(user?.id);
   const navigate = useNavigate();
+
+  const [likedBy, setLikedBy] = useState<string[]>(post.likedBy ?? []);
+  const isLiked = likedBy.includes(user?.id);
 
   const [editing, setEditing] = useState(false);
   const [newContent, setNewContent] = useState(post.content);
@@ -42,10 +44,13 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
   };
 
   const handleRepost = async () => {
-    console.log('reposting post id:', post.id);
-    console.log('userId:', user.id);
     const res = await api.post(`/posts/${post.id}/repost`, { userId: user.id });
-    setPosts((prev: any) => [res.data, ...prev]);
+    const updatedOriginal = await api.get(`/posts/${post.id}`);
+
+    setPosts((prev: any) => [
+      res.data,
+      ...prev.map((p: any) => (p.id === post.id ? updatedOriginal.data : p)),
+    ]);
   };
 
   const handleDeleteRepost = async () => {
@@ -57,7 +62,10 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
     e.stopPropagation();
     const targetId = post.originalPostId ?? post.id;
     const res = await api.post(`/posts/${targetId}/like`, { userId: user.id });
-    // оновлюємо likedBy у поточному пості і в усіх репостах
+    console.log('sending userId:', user.id, typeof user.id);
+
+    setLikedBy(res.data.likedBy);
+
     setPosts((prev: any) =>
       prev.map((p: any) =>
         p.id === res.data.id || p.originalPostId === res.data.id
@@ -127,7 +135,7 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
               handleRepost();
             }}
           >
-            🔁 Repost
+            🔁 {post.repostCount ?? ''}
           </Button>
         )}
         {/* видалити свій репост */}
@@ -141,6 +149,26 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
           >
             ✕ Remove repost
           </Button>
+        )}
+        {user && (
+          <>
+            <Button
+              size="xs"
+              onClick={handleLike}
+              variant={isLiked ? 'solid' : 'outline'}
+            >
+              ❤️ {likedBy.length}
+            </Button>
+            <Button
+              size="xs"
+              onClick={(e) => {
+                e.stopPropagation();
+                navigate(`/post/${post.originalPostId ?? post.id}`);
+              }}
+            >
+              💬 {post.commentCount ?? 0}
+            </Button>
+          </>
         )}
         {isOwner && !post.repostById && !editing && (
           <>
@@ -163,15 +191,6 @@ const Post = ({ post, authorName, repostByName, setPosts }: Props) => {
               Delete
             </Button>
           </>
-        )}
-        {user && (
-          <Button
-            size="xs"
-            onClick={handleLike}
-            variant={isLiked ? 'solid' : 'outline'}
-          >
-            ❤️ {post.likedBy?.length ?? 0}
-          </Button>
         )}
       </div>
     </div>

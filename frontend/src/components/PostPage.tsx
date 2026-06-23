@@ -56,6 +56,10 @@ const PostPage = () => {
     setComments((prev) => [...prev, res.data]);
     setCommentText('');
     setError('');
+
+    // оновлюємо пост щоб отримати новий commentCount
+    const updatedPost = await api.get(`/posts/${id}`);
+    setPost(updatedPost.data);
   };
 
   const deleteComment = async (commentId: string) => {
@@ -63,6 +67,10 @@ const PostPage = () => {
       data: { userId: user.id },
     });
     setComments((prev) => prev.filter((c) => c.id !== commentId));
+
+    // оновлюємо пост щоб отримати новий commentCount
+    const updatedPost = await api.get(`/posts/${id}`);
+    setPost(updatedPost.data);
   };
 
   if (!post) return <p>Loading...</p>;

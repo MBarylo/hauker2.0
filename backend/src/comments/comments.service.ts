@@ -1,41 +1,33 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Comment } from './entities/comment.entity';
 import { CreateCommentDto } from './dto/create-comment.dto';
-
-type Comment = {
-  id: string;
-  content: string;
-  authorId: string;
-  postId: string;
-};
 
 @Injectable()
 export class CommentsService {
-  private comments: Comment[] = [];
+  constructor(
+    @InjectRepository(Comment)
+    private commentsRepository: Repository<Comment>,
+  ) {}
 
-  // повертає всі коментарі до конкретного поста
-  getByPostId(postId: string): Comment[] {
-    return this.comments.filter((c) => c.postId === postId);
+  getByPostId(postId: string): Promise<Comment[]> {
+    return this.commentsRepository.findBy({ postId });
   }
 
-  create(dto: CreateCommentDto): Comment {
-    const newComment = {
+  async create(dto: CreateCommentDto): Promise<Comment> {
+    const newComment = this.commentsRepository.create({
       id: Date.now().toString(),
       ...dto,
-    };
-    this.comments.push(newComment);
-    return newComment;
+    });
+    return this.commentsRepository.save(newComment);
   }
 
-  delete(id: string, userId: string): { message: string } {
-    const comment = this.comments.find((c) => c.id === id);
+  async delete(id: string, userId: string): Promise<{ message: string }> {
+    const comment = await this.commentsRepository.findOneBy({ id });
     if (!comment) throw new NotFoundException('Comment not found');
-
-    // тільки автор може видалити свій коментар
-    if (comment.authorId !== userId) {
-      throw new NotFoundException('Forbidden');
-    }
-
-    this.comments = this.comments.filter((c) => c.id !== id);
+    if (comment.authorId !== userId) throw new NotFoundException('Forbidden');
+    await this.commentsRepository.remove(comment);
     return { message: 'Deleted' };
   }
 }
