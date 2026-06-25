@@ -5,6 +5,7 @@ import { useNavigate } from 'react-router-dom';
 import type { PostType } from './pack/PostType';
 import MediaViewer from './MediaViewer';
 
+//12345
 type Props = {
   post: PostType;
   authorName: string;
