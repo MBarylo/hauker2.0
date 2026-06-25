@@ -154,6 +154,36 @@ export class PostsService {
     );
   }
 
+  async getFollowingFeed(userIds: string[]) {
+    const posts = await this.postsRepository.find();
+    const feed = [...posts].reverse().filter(
+      (p) =>
+        (userIds.includes(p.authorId) && !p.repostById) || // оригінальні пости
+        (p.repostById && userIds.includes(p.repostById)), // репости юзерів зі списку
+    );
+
+    const result = await Promise.all(
+      feed.map(async (p) => {
+        const originalId = p.originalPostId ?? p.id;
+        const repostCount = await this.postsRepository.countBy({
+          originalPostId: originalId,
+        });
+        const comments = await this.commentsService.getByPostId(originalId);
+        const original = p.originalPostId
+          ? await this.postsRepository.findOneBy({ id: originalId })
+          : p;
+        return {
+          ...p,
+          likedBy: original?.likedBy ?? p.likedBy,
+          repostCount,
+          commentCount: comments.length,
+        };
+      }),
+    );
+
+    return result;
+  }
+
   async update(id: string, content?: string) {
     const post = await this.postsRepository.findOneBy({ id });
     if (!post) throw new NotFoundException('Post not found');

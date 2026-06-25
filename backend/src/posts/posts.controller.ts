@@ -40,6 +40,11 @@ export class PostsController {
     return this.postsService.create(dto);
   }
 
+  @Post('following-feed')
+  getFollowingFeed(@Body('userIds') userIds: string[]) {
+    return this.postsService.getFollowingFeed(userIds);
+  }
+
   @Post(':id/repost')
   repost(@Param('id') id: string, @Body('userId') userId: string) {
     return this.postsService.repost(id, userId);

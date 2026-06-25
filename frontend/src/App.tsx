@@ -34,6 +34,14 @@ function App() {
     } else {
       setReady(true);
     }
+
+    const handleStorage = () => {
+      const user = JSON.parse(localStorage.getItem('user') || 'null');
+      setCurrentUser(user);
+    };
+
+    window.addEventListener('storage', handleStorage);
+    return () => window.removeEventListener('storage', handleStorage);
   }, []);
 
   if (!ready) return null;
