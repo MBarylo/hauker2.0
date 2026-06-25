@@ -35,6 +35,26 @@ export class UsersController {
     return this.usersService.getBookmarks(id);
   }
 
+  @Get(':id/followers')
+  getFollowers(@Param('id') id: string) {
+    return this.usersService.getFollowers(id);
+  }
+
+  @Get(':id/following')
+  getFollowing(@Param('id') id: string) {
+    return this.usersService.getFollowing(id);
+  }
+
+  @Get(':id/is-following/:targetId')
+  isFollowing(@Param('id') id: string, @Param('targetId') targetId: string) {
+    return this.usersService.isFollowing(id, targetId);
+  }
+
+  @Post(':id/follow/:targetId')
+  toggleFollow(@Param('id') id: string, @Param('targetId') targetId: string) {
+    return this.usersService.toggleFollow(id, targetId);
+  }
+
   @Post(':id/bookmarks')
   toggleBookmark(@Param('id') id: string, @Body('postId') postId: string) {
     return this.usersService.toggleBookmark(id, postId);

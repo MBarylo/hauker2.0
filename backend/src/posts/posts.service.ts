@@ -118,6 +118,42 @@ export class PostsService {
     return { message: 'Deleted' };
   }
 
+  async getLikedByUser(userId: string) {
+    const posts = await this.postsRepository.find();
+    const liked = posts.filter(
+      (p) => p.likedBy.includes(String(userId)) && !p.repostById,
+    );
+    return Promise.all(
+      liked.map(async (p) => {
+        const originalId = p.originalPostId ?? p.id;
+        const repostCount = await this.postsRepository.countBy({
+          originalPostId: originalId,
+        });
+        const comments = await this.commentsService.getByPostId(originalId);
+        return { ...p, repostCount, commentCount: comments.length };
+      }),
+    );
+  }
+
+  async getCommentedByUser(userId: string) {
+    const comments = await this.commentsService.getByUserId(String(userId));
+    const postIds = [...new Set(comments.map((c) => c.postId))];
+    const posts = await Promise.all(
+      postIds.map((postId) => this.postsRepository.findOneBy({ id: postId })),
+    );
+    return Promise.all(
+      posts
+        .filter((p) => p !== null)
+        .map(async (p) => {
+          const repostCount = await this.postsRepository.countBy({
+            originalPostId: p!.id,
+          });
+          const postComments = await this.commentsService.getByPostId(p!.id);
+          return { ...p, repostCount, commentCount: postComments.length };
+        }),
+    );
+  }
+
   async update(id: string, content?: string) {
     const post = await this.postsRepository.findOneBy({ id });
     if (!post) throw new NotFoundException('Post not found');

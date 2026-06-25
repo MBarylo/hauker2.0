@@ -1,7 +1,12 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { User } from './entities/user.entity';
+import { Follow } from './entities/follow.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Bookmark } from './entities/bookmark.entity';
 
@@ -12,10 +17,62 @@ export class UsersService {
     private usersRepository: Repository<User>,
     @InjectRepository(Bookmark)
     private bookmarksRepository: Repository<Bookmark>,
+    @InjectRepository(Follow)
+    private followsRepository: Repository<Follow>,
   ) {}
 
   getAll(): Promise<User[]> {
     return this.usersRepository.find();
+  }
+
+  async toggleFollow(
+    followerId: string,
+    followingId: string,
+  ): Promise<{ following: boolean }> {
+    if (followerId === followingId) {
+      throw new ForbiddenException('Cannot follow yourself');
+    }
+
+    const existing = await this.followsRepository.findOneBy({
+      followerId,
+      followingId,
+    });
+
+    if (existing) {
+      await this.followsRepository.remove(existing);
+      return { following: false };
+    }
+
+    const follow = this.followsRepository.create({
+      id: Date.now().toString(),
+      followerId: String(followerId),
+      followingId: String(followingId),
+    });
+    await this.followsRepository.save(follow);
+    return { following: true };
+  }
+
+  async isFollowing(
+    followerId: string,
+    followingId: string,
+  ): Promise<{ following: boolean }> {
+    const existing = await this.followsRepository.findOneBy({
+      followerId,
+      followingId,
+    });
+    return { following: !!existing };
+  }
+
+  async getFollowers(userId: string) {
+    const follows = await this.followsRepository.findBy({
+      followingId: userId,
+    });
+    return Promise.all(follows.map((f) => this.getById(f.followerId)));
+  }
+
+  async getFollowing(userId: string) {
+    const follows = await this.followsRepository.findBy({ followerId: userId });
+    return Promise.all(follows.map((f) => this.getById(f.followingId)));
   }
 
   async getById(id: string): Promise<User> {

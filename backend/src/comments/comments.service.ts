@@ -15,6 +15,10 @@ export class CommentsService {
     return this.commentsRepository.findBy({ postId });
   }
 
+  getByUserId(userId: string): Promise<Comment[]> {
+    return this.commentsRepository.findBy({ authorId: userId });
+  }
+
   async create(dto: CreateCommentDto): Promise<Comment> {
     const newComment = this.commentsRepository.create({
       id: Date.now().toString(),

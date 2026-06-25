@@ -261,6 +261,13 @@ textarea::placeholder {
   margin-bottom: 20px;
 }
 
+.profile-tabs {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+}
+
 .post,
 .post-footer button,
 .nav-link,
@@ -276,4 +283,35 @@ button {
     background 0.2s ease,
     color 0.2s ease,
     border-color 0.2s ease;
+}
+
+.follow-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.follow-modal-inner {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  width: 320px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.follow-item {
+  padding: 10px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.follow-item:hover {
+  background: var(--btn);
 }

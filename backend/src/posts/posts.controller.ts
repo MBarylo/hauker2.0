@@ -20,6 +20,16 @@ export class PostsController {
     return this.postsService.getAll();
   }
 
+  @Get('liked/:userId')
+  getLikedByUser(@Param('userId') userId: string) {
+    return this.postsService.getLikedByUser(userId);
+  }
+
+  @Get('commented/:userId')
+  getCommentedByUser(@Param('userId') userId: string) {
+    return this.postsService.getCommentedByUser(userId);
+  }
+
   @Get(':id')
   getById(@Param('id') id: string) {
     return this.postsService.getById(id);
