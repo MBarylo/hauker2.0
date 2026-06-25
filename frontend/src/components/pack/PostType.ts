@@ -1,5 +1,3 @@
-//import type PostComment from './PostComment'
-
 export type PostType = {
   id: string;
   content: string;
@@ -9,6 +7,6 @@ export type PostType = {
   likedBy: string[];
   repostCount: number;
   commentCount: number;
-  // comments: PostComment[]
+  mediaUrls?: string[];
   // createdAt: number
 };

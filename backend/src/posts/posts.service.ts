@@ -55,10 +55,11 @@ export class PostsService {
     };
   }
 
-  async create(dto: CreatePostDto): Promise<Post> {
+  async create(dto: CreatePostDto, mediaUrls: string[] = []): Promise<Post> {
     const newPost = this.postsRepository.create({
       id: Date.now().toString(),
       likedBy: [],
+      mediaUrls,
       ...dto,
     });
     return this.postsRepository.save(newPost);

@@ -19,4 +19,7 @@ export class Post {
 
   @Column('simple-array', { default: '' })
   likedBy!: string[];
+
+  @Column('simple-array', { nullable: true })
+  mediaUrls?: string[];
 }

@@ -6,10 +6,15 @@ import {
   Param,
   Patch,
   Delete,
+  UseInterceptors,
+  UploadedFiles,
 } from '@nestjs/common';
 import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
+import { FilesInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { extname } from 'path';
 
 @Controller('posts')
 export class PostsController {
@@ -36,8 +41,29 @@ export class PostsController {
   }
 
   @Post()
-  create(@Body() dto: CreatePostDto) {
-    return this.postsService.create(dto);
+  @UseInterceptors(
+    FilesInterceptor('files', 4, {
+      storage: diskStorage({
+        destination: './uploads',
+        filename: (req, file, cb) => {
+          const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, unique + extname(file.originalname));
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        const allowed = /jpeg|jpg|png|webp|mp4|mov|avi/;
+        const ext = allowed.test(extname(file.originalname).toLowerCase());
+        const mime = allowed.test(file.mimetype);
+        cb(null, ext && mime);
+      },
+    }),
+  )
+  create(
+    @Body() dto: CreatePostDto,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    const mediaUrls = files?.map((f) => `/uploads/${f.filename}`) ?? [];
+    return this.postsService.create(dto, mediaUrls);
   }
 
   @Post('following-feed')

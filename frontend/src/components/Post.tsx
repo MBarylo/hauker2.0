@@ -164,6 +164,28 @@ const Post = ({
         <p className="post-text">{post.content}</p>
       )}
 
+      {post.mediaUrls && post.mediaUrls.length > 0 && (
+        <div className="media-grid" onClick={(e) => e.stopPropagation()}>
+          {post.mediaUrls.map((url, i) =>
+            url.match(/\.(mp4|mov|avi)$/i) ? (
+              <video
+                key={i}
+                src={`http://localhost:3000${url}`}
+                controls
+                className="media-item"
+              />
+            ) : (
+              <img
+                key={i}
+                src={`http://localhost:3000${url}`}
+                alt=""
+                className="media-item"
+              />
+            ),
+          )}
+        </div>
+      )}
+
       <div className="post-footer">
         {/* кнопка репосту — для всіх крім власника репосту */}
 
