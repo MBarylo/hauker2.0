@@ -5,15 +5,15 @@ import LoginForm from './components/LoginForm';
 import RegisterForm from './components/RegisterForm';
 import PostPage from './components/PostPage';
 import UserProfile from './components/UserProfile';
+import Settings from './components/Settings';
 import { AnimatePresence, motion } from 'framer-motion';
-import { usePost } from './components/PostContext';
 import { useEffect, useState } from 'react';
 import { api } from './api';
 
 function App() {
-  const { setTheme, theme } = usePost();
   const location = useLocation();
   const [ready, setReady] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const [currentUser, setCurrentUser] = useState(
     JSON.parse(localStorage.getItem('user') || 'null'),
@@ -61,14 +61,11 @@ function App() {
           >
             👤 Profile
           </Link>
-          <Link to="/login" className="nav-link">
-            🚪 Logout
-          </Link>
+          <button className="nav-link" onClick={() => setSettingsOpen(true)}>
+            ⚙️ Settings
+          </button>
         </nav>
-
-        <button onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
-          Switch theme
-        </button>
+        {settingsOpen && <Settings onClose={() => setSettingsOpen(false)} />}
       </aside>
 
       <main className="feed">

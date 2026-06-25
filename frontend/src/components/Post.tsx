@@ -38,6 +38,8 @@ const Post = ({
 
   const [mediaViewerIndex, setMediaViewerIndex] = useState<number | null>(null);
 
+  const [menuOpen, setMenuOpen] = useState(false);
+
   useEffect(() => {
     setLikedBy(post.likedBy ?? []);
   }, [post.likedBy]);
@@ -132,16 +134,61 @@ const Post = ({
         </Text>
       )}
 
-      <p
-        className="post-author"
-        onClick={(e) => {
-          e.stopPropagation();
-          navigate(`/user/${post.authorId}`);
+      <div
+        style={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'flex-start',
         }}
-        style={{ cursor: 'pointer' }}
       >
-        {authorName}
-      </p>
+        <p
+          className="post-author"
+          onClick={(e) => {
+            e.stopPropagation();
+            navigate(`/user/${post.authorId}`);
+          }}
+          style={{ cursor: 'pointer' }}
+        >
+          {authorName}
+        </p>
+
+        {isOwner && !post.repostById && (
+          <div
+            style={{ position: 'relative' }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button
+              className="post-menu-btn"
+              onClick={() => setMenuOpen((prev) => !prev)}
+            >
+              ···
+            </button>
+
+            {menuOpen && (
+              <div className="post-menu">
+                <button
+                  className="post-menu-item"
+                  onClick={() => {
+                    setEditing(true);
+                    setMenuOpen(false);
+                  }}
+                >
+                  ✏️ Edit
+                </button>
+                <button
+                  className="post-menu-item post-menu-item--danger"
+                  onClick={() => {
+                    deletePost();
+                    setMenuOpen(false);
+                  }}
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
 
       {editing ? (
         <>
@@ -260,28 +307,6 @@ const Post = ({
                 ✓ Link copied
               </Text>
             )}
-          </>
-        )}
-        {isOwner && !post.repostById && !editing && (
-          <>
-            <Button
-              size="xs"
-              onClick={(e) => {
-                e.stopPropagation();
-                setEditing(true);
-              }}
-            >
-              Edit
-            </Button>
-            <Button
-              size="xs"
-              onClick={(e) => {
-                e.stopPropagation();
-                deletePost();
-              }}
-            >
-              Delete
-            </Button>
           </>
         )}
       </div>

@@ -573,3 +573,58 @@ button {
   margin-top: 1rem;
   padding-bottom: 20px;
 }
+
+.post-menu-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 18px;
+  padding: 0 4px;
+  border-radius: 4px;
+  line-height: 1;
+  transition: 0.2s;
+}
+
+.post-menu-btn:hover {
+  background: var(--btn);
+  color: var(--text);
+}
+
+.post-menu {
+  position: absolute;
+  top: 24px;
+  right: 0;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  overflow: hidden;
+  z-index: 10;
+  min-width: 130px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.post-menu-item {
+  display: block;
+  width: 100%;
+  padding: 10px 14px;
+  background: transparent;
+  border: none;
+  color: var(--text);
+  cursor: pointer;
+  text-align: left;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.post-menu-item:hover {
+  background: var(--btn);
+}
+
+.post-menu-item--danger {
+  color: #ef4444;
+}
+
+.post-menu-item--danger:hover {
+  background: rgba(239, 68, 68, 0.1);
+}
