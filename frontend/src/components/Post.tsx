@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button, Input, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import type { PostType } from './pack/PostType';
+import MediaViewer from './MediaViewer';
 
 type Props = {
   post: PostType;
@@ -34,6 +35,8 @@ const Post = ({
   const [copied, setCopied] = useState(false);
 
   const [bookmarked, setBookmarked] = useState(false);
+
+  const [mediaViewerIndex, setMediaViewerIndex] = useState<number | null>(null);
 
   useEffect(() => {
     setLikedBy(post.likedBy ?? []);
@@ -180,10 +183,21 @@ const Post = ({
                 src={`http://localhost:3000${url}`}
                 alt=""
                 className="media-item"
+                style={{ cursor: 'zoom-in' }}
+                onClick={() => setMediaViewerIndex(i)}
               />
             ),
           )}
         </div>
+      )}
+
+      {mediaViewerIndex !== null && (
+        <MediaViewer
+          post={post}
+          initialIndex={mediaViewerIndex}
+          authorName={authorName}
+          onClose={() => setMediaViewerIndex(null)}
+        />
       )}
 
       <div className="post-footer">

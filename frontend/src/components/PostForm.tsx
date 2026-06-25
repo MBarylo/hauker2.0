@@ -53,7 +53,17 @@ const PostForm = () => {
   }
 
   const handleFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = Array.from(e.target.files ?? []).slice(0, 4);
+    const selected = Array.from(e.target.files ?? []);
+
+    if (selected.length > 4) {
+      setError('You can attach up to 4 files');
+      const sliced = selected.slice(0, 4);
+      setFiles(sliced);
+      setPreviews(sliced.map((f) => URL.createObjectURL(f)));
+      return;
+    }
+
+    setError('');
     setFiles(selected);
     setPreviews(selected.map((f) => URL.createObjectURL(f)));
   };
