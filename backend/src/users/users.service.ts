@@ -129,4 +129,16 @@ export class UsersService {
     await this.bookmarksRepository.save(bookmark);
     return { bookmarked: true };
   }
+
+  async updateAvatar(id: string, avatarUrl: string): Promise<User> {
+    const user = await this.getById(id);
+    user.avatarUrl = avatarUrl;
+    return this.usersRepository.save(user);
+  }
+
+  async updateBanner(id: string, bannerUrl: string): Promise<User> {
+    const user = await this.getById(id);
+    user.bannerUrl = bannerUrl;
+    return this.usersRepository.save(user);
+  }
 }

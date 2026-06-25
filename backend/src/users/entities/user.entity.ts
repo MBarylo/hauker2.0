@@ -7,4 +7,10 @@ export class User {
 
   @Column({ unique: true })
   username!: string;
+
+  @Column({ nullable: true })
+  avatarUrl?: string;
+
+  @Column({ nullable: true })
+  bannerUrl?: string;
 }

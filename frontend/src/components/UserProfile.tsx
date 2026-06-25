@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { api } from '../api';
 import { Button, Text } from '@chakra-ui/react';
@@ -32,6 +32,9 @@ const UserProfile = () => {
   const [commented, setCommented] = useState<PostType[]>([]);
   const [bookmarks, setBookmarks] = useState<PostType[]>([]);
 
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const bannerInputRef = useRef<HTMLInputElement | null>(null);
+
   useEffect(() => {
     api.get('/users').then((usersRes) => {
       setUsers(usersRes.data);
@@ -48,7 +51,6 @@ const UserProfile = () => {
 
     api.get(`/posts/liked/${id}`).then((res) => setLiked(res.data));
     api.get(`/posts/commented/${id}`).then((res) => setCommented(res.data));
-
     api
       .get(`/users/${id}/followers`)
       .then((res) => setFollowersCount(res.data.length));
@@ -77,6 +79,29 @@ const UserProfile = () => {
     const res = await api.post(`/users/${currentUser.id}/follow/${id}`);
     setFollowing(res.data.following);
     setFollowersCount((prev) => (res.data.following ? prev + 1 : prev - 1));
+  };
+
+  const handleAvatarUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await api.post(`/users/${id}/avatar`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    setUser(res.data);
+    localStorage.setItem('user', JSON.stringify(res.data));
+  };
+
+  const handleBannerUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const formData = new FormData();
+    formData.append('file', file);
+    const res = await api.post(`/users/${id}/banner`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+    setUser(res.data);
   };
 
   const getUsername = (authorId: string) => {
@@ -134,7 +159,66 @@ const UserProfile = () => {
         </Button>
       )}
 
+      {/* шапка */}
+      <div className="profile-banner">
+        {user?.bannerUrl ? (
+          <img src={`http://localhost:3000${user.bannerUrl}`} alt="banner" />
+        ) : (
+          <div className="profile-banner-placeholder" />
+        )}
+        {isOwnProfile && (
+          <>
+            <button
+              className="profile-banner-edit"
+              onClick={() => bannerInputRef.current?.click()}
+            >
+              📷
+            </button>
+            <input
+              ref={bannerInputRef}
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp"
+              style={{ display: 'none' }}
+              onChange={handleBannerUpload}
+            />
+          </>
+        )}
+      </div>
+
       <div className="profile">
+        {/* аватар */}
+        <div className="profile-avatar-wrapper">
+          <div className="profile-avatar">
+            {user?.avatarUrl ? (
+              <img
+                src={`http://localhost:3000${user.avatarUrl}`}
+                alt="avatar"
+              />
+            ) : (
+              <div className="profile-avatar-placeholder">
+                {user?.username?.[0]?.toUpperCase()}
+              </div>
+            )}
+          </div>
+          {isOwnProfile && (
+            <>
+              <button
+                className="profile-avatar-edit"
+                onClick={() => avatarInputRef.current?.click()}
+              >
+                📷
+              </button>
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/jpeg,image/jpg,image/png,image/webp"
+                style={{ display: 'none' }}
+                onChange={handleAvatarUpload}
+              />
+            </>
+          )}
+        </div>
+
         <h2>{isOwnProfile ? 'My profile' : user?.username}</h2>
         <p>Username: {user?.username}</p>
 
@@ -193,7 +277,7 @@ const UserProfile = () => {
         ))}
       </div>
 
-      <div style={{ marginTop: '1rem' }}>
+      <div className="profile-posts-list" style={{ marginTop: '1rem' }}>
         {currentPosts().map((p) => (
           <Post
             key={p.id}
