@@ -75,6 +75,7 @@ export class PostsService {
       repostById: String(userId),
       originalPostId: postId,
       likedBy: [],
+      mediaUrls: original.mediaUrls ?? [],
     });
     return this.postsRepository.save(repost);
   }

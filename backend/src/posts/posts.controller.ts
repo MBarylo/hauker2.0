@@ -13,8 +13,6 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-post.dto';
 import { UpdatePostDto } from './dto/update-post.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
-import { diskStorage } from 'multer';
-import { extname } from 'path';
 import { mediaStorage } from '../cloudinary.storage';
 
 @Controller('posts')
@@ -43,12 +41,20 @@ export class PostsController {
 
   @Post()
   @UseInterceptors(FilesInterceptor('files', 4, { storage: mediaStorage }))
-  create(
+  async create(
     @Body() dto: CreatePostDto,
     @UploadedFiles() files: Express.Multer.File[],
   ) {
-    const mediaUrls = files?.map((f: any) => f.path) ?? [];
-    return this.postsService.create(dto, mediaUrls);
+    try {
+      console.log('files received:', files);
+      console.log('files count:', files?.length);
+      const mediaUrls = files?.map((f: any) => f.path) ?? [];
+      console.log('mediaUrls:', mediaUrls);
+      return await this.postsService.create(dto, mediaUrls);
+    } catch (err) {
+      console.error('CREATE POST ERROR:', err);
+      throw err;
+    }
   }
 
   @Post('following-feed')
