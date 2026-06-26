@@ -37,48 +37,73 @@ const RegisterForm = () => {
   };
 
   return (
-    <div className="feed-inner">
-      <form
-        className="post-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleRegister();
-        }}
-      >
-        <Input
-          size="md"
-          value={username}
-          ref={ref}
-          placeholder="Username"
-          onChange={(e) => setUsername(e.target.value)}
-        />
-        <Input
-          size="md"
-          type="email"
-          value={email}
-          placeholder="Email"
-          onChange={(e) => setEmail(e.target.value)}
-        />
-        <Input
-          size="md"
-          type="password"
-          value={password}
-          placeholder="Password (min 6 chars)"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <Button size="md" type="submit">
-          Register
-        </Button>
-      </form>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h1>Hauker</h1>
+        <h2>Create account</h2>
+        <p>Join Hauker today</p>
 
-      <Text
-        style={{ cursor: 'pointer', marginTop: '8px', color: 'var(--accent)' }}
-        onClick={() => navigate('/login')}
-      >
-        Already have an account? Login
-      </Text>
+        <form
+          className="post-form"
+          style={{
+            boxShadow: 'none',
+            border: 'none',
+            padding: 0,
+            marginBottom: 0,
+          }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleRegister();
+          }}
+        >
+          <Input
+            size="md"
+            value={username}
+            ref={ref}
+            placeholder="Username"
+            onChange={(e) => setUsername(e.target.value)}
+          />
+          <Input
+            size="md"
+            type="email"
+            value={email}
+            placeholder="Email"
+            onChange={(e) => setEmail(e.target.value)}
+          />
+          <Input
+            size="md"
+            type="password"
+            value={password}
+            placeholder="Password (min 6 chars)"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button size="md" type="submit" colorScheme="blue" width="100%">
+            Create account
+          </Button>
+        </form>
 
-      {error && <Text color="red.500">{error}</Text>}
+        <Text
+          style={{
+            textAlign: 'center',
+            color: 'var(--text-muted)',
+            fontSize: '13px',
+          }}
+        >
+          Already have an account?{' '}
+          <span
+            style={{ color: 'var(--accent)', cursor: 'pointer' }}
+            onClick={() => navigate('/login')}
+          >
+            Sign in
+          </span>
+        </Text>
+
+        {error && (
+          <Text color="red.500" textAlign="center">
+            {error}
+          </Text>
+        )}
+      </div>
     </div>
   );
 };

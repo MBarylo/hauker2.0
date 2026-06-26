@@ -22,7 +22,7 @@ const Post = ({
   isBookmarked,
   setBookmarkedIds,
 }: Props) => {
-  const user = JSON.parse(localStorage.getItem('user')!);
+  const user = JSON.parse(localStorage.getItem('user') || 'null');
   const isOwner = user?.id === post.authorId;
   const isMyRepost = user?.id === post.repostById;
   const navigate = useNavigate();

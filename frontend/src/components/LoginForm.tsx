@@ -23,6 +23,7 @@ const LoginForm = () => {
     try {
       const res = await api.post('/auth/login', { login, password });
       localStorage.setItem('user', JSON.stringify(res.data.user));
+      console.log(res.data);
       localStorage.setItem('token', res.data.token);
       window.dispatchEvent(new Event('storage'));
       navigate('/');
@@ -32,41 +33,66 @@ const LoginForm = () => {
   };
 
   return (
-    <div className="feed-inner">
-      <form
-        className="post-form"
-        onSubmit={(e) => {
-          e.preventDefault();
-          handleLogin();
-        }}
-      >
-        <Input
-          size="md"
-          value={login}
-          ref={ref}
-          placeholder="Username or email"
-          onChange={(e) => setLogin(e.target.value)}
-        />
-        <Input
-          size="md"
-          type="password"
-          value={password}
-          placeholder="Password"
-          onChange={(e) => setPassword(e.target.value)}
-        />
-        <Button size="md" type="submit">
-          Login
-        </Button>
-      </form>
+    <div className="auth-page">
+      <div className="auth-card">
+        <h1>Hauker</h1>
+        <h2>Welcome back</h2>
+        <p>Sign in to your account</p>
 
-      <Text
-        style={{ cursor: 'pointer', marginTop: '8px', color: 'var(--accent)' }}
-        onClick={() => navigate('/register')}
-      >
-        No account? Register
-      </Text>
+        <form
+          className="post-form"
+          style={{
+            boxShadow: 'none',
+            border: 'none',
+            padding: 0,
+            marginBottom: 0,
+          }}
+          onSubmit={(e) => {
+            e.preventDefault();
+            handleLogin();
+          }}
+        >
+          <Input
+            size="md"
+            value={login}
+            ref={ref}
+            placeholder="Username or email"
+            onChange={(e) => setLogin(e.target.value)}
+          />
+          <Input
+            size="md"
+            type="password"
+            value={password}
+            placeholder="Password"
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button size="md" type="submit" colorScheme="blue" width="100%">
+            Sign in
+          </Button>
+        </form>
 
-      {error && <Text color="red.500">{error}</Text>}
+        <Text
+          style={{
+            textAlign: 'center',
+            color: 'var(--text-muted)',
+            fontSize: '13px',
+          }}
+        >
+          Don't have an account?{' '}
+          <span
+            style={{ color: 'var(--accent)', cursor: 'pointer' }}
+            onClick={() => navigate('/register')}
+          >
+            Register
+          </span>
+        </Text>
+
+        {error && (
+          <Text color="red.500" textAlign="center">
+            {error}
+          </Text>
+        )}
+      </div>
     </div>
   );
 };

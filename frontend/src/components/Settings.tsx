@@ -12,9 +12,10 @@ const Settings = ({ onClose }: Props) => {
 
   const handleLogout = () => {
     localStorage.removeItem('user');
+    localStorage.removeItem('token');
     onClose();
-    navigate('/login');
     window.dispatchEvent(new Event('storage'));
+    navigate('/login');
   };
 
   return (

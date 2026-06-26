@@ -153,6 +153,28 @@ const AdminPanel = () => {
                     {usernames[p.authorId] ?? p.authorId}
                   </Text>
                   <Text fontSize="sm">{p.content}</Text>
+                  {p.mediaUrls && p.mediaUrls.length > 0 && (
+                    <div className="media-grid" style={{ marginTop: '8px' }}>
+                      {p.mediaUrls.map((url, i) =>
+                        url.match(/\.(mp4|mov|avi)$/i) ? (
+                          <video
+                            key={i}
+                            src={url}
+                            controls
+                            className="media-item"
+                          />
+                        ) : (
+                          <img
+                            key={i}
+                            src={url}
+                            alt=""
+                            className="media-item"
+                            style={{ cursor: 'zoom-in' }}
+                          />
+                        ),
+                      )}
+                    </div>
+                  )}
                   {p.repostById && (
                     <Text fontSize="xs" color="gray.500">
                       🔁 repost by {usernames[p.repostById] ?? p.repostById}

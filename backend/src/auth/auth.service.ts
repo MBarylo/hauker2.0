@@ -60,6 +60,7 @@ export class AuthService {
         id: user.id,
         username: user.username,
         email: user.email,
+        role: user.role, // ← додай
         avatarUrl: user.avatarUrl,
         bannerUrl: user.bannerUrl,
       },

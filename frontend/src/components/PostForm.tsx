@@ -143,6 +143,7 @@ const PostForm = () => {
 
         <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
           <Button
+            flex={1}
             size="sm"
             type="button"
             variant="outline"
@@ -158,7 +159,7 @@ const PostForm = () => {
             style={{ display: 'none' }}
             onChange={handleFiles}
           />
-          <Button size="md" type="submit">
+          <Button size="md" type="submit" flex={1}>
             Post
           </Button>
         </div>
@@ -166,17 +167,21 @@ const PostForm = () => {
 
       {error && <Text className="error">{error}</Text>}
 
-      <div className="profile-tabs" style={{ marginBottom: '1rem' }}>
+      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
         <Button
-          size="sm"
+          flex={1}
+          size="md"
           variant={feedTab === 'all' ? 'solid' : 'outline'}
+          colorScheme="blue"
           onClick={() => setFeedTab('all')}
         >
           🌍 All
         </Button>
         <Button
-          size="sm"
+          flex={1}
+          size="md"
           variant={feedTab === 'following' ? 'solid' : 'outline'}
+          colorScheme="blue"
           onClick={() => setFeedTab('following')}
         >
           👥 Following
