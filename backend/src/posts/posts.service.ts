@@ -186,6 +186,13 @@ export class PostsService {
     return result;
   }
 
+  async adminDelete(id: string) {
+    const post = await this.postsRepository.findOneBy({ id });
+    if (!post) throw new NotFoundException('Post not found');
+    await this.postsRepository.remove(post);
+    return { message: 'Deleted' };
+  }
+
   async update(id: string, content?: string) {
     const post = await this.postsRepository.findOneBy({ id });
     if (!post) throw new NotFoundException('Post not found');

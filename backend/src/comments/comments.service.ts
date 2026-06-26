@@ -27,6 +27,17 @@ export class CommentsService {
     return this.commentsRepository.save(newComment);
   }
 
+  getAll(): Promise<Comment[]> {
+    return this.commentsRepository.find();
+  }
+
+  async adminDelete(id: string) {
+    const comment = await this.commentsRepository.findOneBy({ id });
+    if (!comment) throw new NotFoundException('Comment not found');
+    await this.commentsRepository.remove(comment);
+    return { message: 'Deleted' };
+  }
+
   async delete(id: string, userId: string): Promise<{ message: string }> {
     const comment = await this.commentsRepository.findOneBy({ id });
     if (!comment) throw new NotFoundException('Comment not found');

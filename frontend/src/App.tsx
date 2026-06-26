@@ -6,6 +6,7 @@ import RegisterForm from './components/RegisterForm';
 import PostPage from './components/PostPage';
 import UserProfile from './components/UserProfile';
 import Settings from './components/Settings';
+import AdminPanel from './components/AdminPanel';
 import { AnimatePresence, motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
 import { api } from './api';
@@ -61,6 +62,11 @@ function App() {
           >
             👤 Profile
           </Link>
+          {currentUser?.role === 'admin' && (
+            <Link to="/admin" className="nav-link">
+              ⚙️ Admin
+            </Link>
+          )}
           <button className="nav-link" onClick={() => setSettingsOpen(true)}>
             ⚙️ Settings
           </button>
@@ -130,6 +136,18 @@ function App() {
                     exit={{ opacity: 0, x: -50 }}
                   >
                     <PostPage />
+                  </motion.div>
+                }
+              />
+              <Route
+                path="/admin"
+                element={
+                  <motion.div
+                    initial={{ opacity: 0, x: 50 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: -50 }}
+                  >
+                    <AdminPanel />
                   </motion.div>
                 }
               />
