@@ -1,15 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { api } from '../api';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Input, Button, Text } from '@chakra-ui/react';
-import type { User } from './pack/User';
 
 const RegisterForm = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-
-  const prefilled = (location.state as any)?.username || '';
-  const [value, setValue] = useState(prefilled);
+  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const ref = useRef<HTMLInputElement | null>(null);
 
@@ -18,22 +16,20 @@ const RegisterForm = () => {
   }, []);
 
   const handleRegister = async () => {
-    if (!value.trim()) {
-      setError('Enter username');
+    if (!username.trim() || !email.trim() || !password.trim()) {
+      setError('Fill in all fields');
       return;
     }
 
     try {
-      const res = await api.get('/users');
-      const exists = res.data.find((u: User) => u.username === value.trim());
-
-      if (exists) {
-        setError('Username already taken');
-        return;
-      }
-
-      const newUser = await api.post('/users', { username: value.trim() });
-      localStorage.setItem('user', JSON.stringify(newUser.data));
+      const res = await api.post('/auth/register', {
+        username,
+        email,
+        password,
+      });
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      localStorage.setItem('token', res.data.token);
+      window.dispatchEvent(new Event('storage'));
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error');
@@ -51,16 +47,36 @@ const RegisterForm = () => {
       >
         <Input
           size="md"
-          value={value}
+          value={username}
           ref={ref}
-          placeholder="Choose username"
-          onChange={(e) => setValue(e.target.value)}
+          placeholder="Username"
+          onChange={(e) => setUsername(e.target.value)}
         />
-
+        <Input
+          size="md"
+          type="email"
+          value={email}
+          placeholder="Email"
+          onChange={(e) => setEmail(e.target.value)}
+        />
+        <Input
+          size="md"
+          type="password"
+          value={password}
+          placeholder="Password (min 6 chars)"
+          onChange={(e) => setPassword(e.target.value)}
+        />
         <Button size="md" type="submit">
           Register
         </Button>
       </form>
+
+      <Text
+        style={{ cursor: 'pointer', marginTop: '8px', color: 'var(--accent)' }}
+        onClick={() => navigate('/login')}
+      >
+        Already have an account? Login
+      </Text>
 
       {error && <Text color="red.500">{error}</Text>}
     </div>

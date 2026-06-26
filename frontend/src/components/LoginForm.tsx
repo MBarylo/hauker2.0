@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect } from 'react';
 import { api } from '../api';
 import { useNavigate } from 'react-router-dom';
-import { Input, Button } from '@chakra-ui/react';
-import type { User } from './pack/User';
+import { Input, Button, Text } from '@chakra-ui/react';
 
 const LoginForm = () => {
-  const [value, setValue] = useState('');
+  const [login, setLogin] = useState('');
+  const [password, setPassword] = useState('');
   const [error, setError] = useState('');
   const navigate = useNavigate();
-
   const ref = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -16,22 +15,16 @@ const LoginForm = () => {
   }, []);
 
   const handleLogin = async () => {
-    if (!value.trim()) {
-      setError('Enter username');
+    if (!login.trim() || !password.trim()) {
+      setError('Fill in all fields');
       return;
     }
 
     try {
-      const res = await api.get('/users');
-      const users = res.data;
-      const user = users.find((u: User) => u.username === value.trim());
-
-      if (!user) {
-        navigate('/register', { state: { username: value.trim() } });
-        return;
-      }
-
-      localStorage.setItem('user', JSON.stringify(user));
+      const res = await api.post('/auth/login', { login, password });
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      localStorage.setItem('token', res.data.token);
+      window.dispatchEvent(new Event('storage'));
       navigate('/');
     } catch (err: any) {
       setError(err.response?.data?.message || 'Error');
@@ -40,20 +33,40 @@ const LoginForm = () => {
 
   return (
     <div className="feed-inner">
-      <form className="post-form">
+      <form
+        className="post-form"
+        onSubmit={(e) => {
+          e.preventDefault();
+          handleLogin();
+        }}
+      >
         <Input
           size="md"
-          value={value}
+          value={login}
           ref={ref}
-          onChange={(e) => setValue(e.target.value)}
+          placeholder="Username or email"
+          onChange={(e) => setLogin(e.target.value)}
         />
-
-        <Button size="md" onClick={handleLogin}>
+        <Input
+          size="md"
+          type="password"
+          value={password}
+          placeholder="Password"
+          onChange={(e) => setPassword(e.target.value)}
+        />
+        <Button size="md" type="submit">
           Login
         </Button>
       </form>
 
-      {error && <p>{error}</p>}
+      <Text
+        style={{ cursor: 'pointer', marginTop: '8px', color: 'var(--accent)' }}
+        onClick={() => navigate('/register')}
+      >
+        No account? Register
+      </Text>
+
+      {error && <Text color="red.500">{error}</Text>}
     </div>
   );
 };
