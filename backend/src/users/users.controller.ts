@@ -15,20 +15,7 @@ import { UpdateUserDto } from './dto/update-user.dto';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { extname } from 'path';
-
-// ← поза класом
-const imageStorage = diskStorage({
-  destination: './uploads',
-  filename: (req, file, cb) => {
-    const unique = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    cb(null, unique + extname(file.originalname));
-  },
-});
-
-const imageFilter = (req: any, file: any, cb: any) => {
-  const allowed = /jpeg|jpg|png|webp/;
-  cb(null, allowed.test(extname(file.originalname).toLowerCase()));
-};
+import { avatarStorage, bannerStorage } from '../cloudinary.storage';
 
 @Controller('users')
 export class UsersController {
@@ -80,25 +67,21 @@ export class UsersController {
   }
 
   @Post(':id/avatar')
-  @UseInterceptors(
-    FileInterceptor('file', { storage: imageStorage, fileFilter: imageFilter }),
-  )
+  @UseInterceptors(FileInterceptor('file', { storage: avatarStorage }))
   uploadAvatar(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.usersService.updateAvatar(id, `/uploads/${file.filename}`);
+    return this.usersService.updateAvatar(id, (file as any).path);
   }
 
   @Post(':id/banner')
-  @UseInterceptors(
-    FileInterceptor('file', { storage: imageStorage, fileFilter: imageFilter }),
-  )
+  @UseInterceptors(FileInterceptor('file', { storage: bannerStorage }))
   uploadBanner(
     @Param('id') id: string,
     @UploadedFile() file: Express.Multer.File,
   ) {
-    return this.usersService.updateBanner(id, `/uploads/${file.filename}`);
+    return this.usersService.updateBanner(id, (file as any).path);
   }
 
   @Patch(':id')

@@ -5,7 +5,6 @@ import { useNavigate } from 'react-router-dom';
 import type { PostType } from './pack/PostType';
 import MediaViewer from './MediaViewer';
 
-//12345
 type Props = {
   post: PostType;
   authorName: string;
@@ -219,16 +218,11 @@ const Post = ({
         <div className="media-grid" onClick={(e) => e.stopPropagation()}>
           {post.mediaUrls.map((url, i) =>
             url.match(/\.(mp4|mov|avi)$/i) ? (
-              <video
-                key={i}
-                src={`http://localhost:3000${url}`}
-                controls
-                className="media-item"
-              />
+              <video key={i} src={url} controls className="media-item" />
             ) : (
               <img
                 key={i}
-                src={`http://localhost:3000${url}`}
+                src={url}
                 alt=""
                 className="media-item"
                 style={{ cursor: 'zoom-in' }}

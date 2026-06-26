@@ -162,7 +162,7 @@ const UserProfile = () => {
       {/* шапка */}
       <div className="profile-banner">
         {user?.bannerUrl ? (
-          <img src={`http://localhost:3000${user.bannerUrl}`} alt="banner" />
+          <img src={user.bannerUrl} alt="banner" />
         ) : (
           <div className="profile-banner-placeholder" />
         )}
@@ -190,10 +190,7 @@ const UserProfile = () => {
         <div className="profile-avatar-wrapper">
           <div className="profile-avatar">
             {user?.avatarUrl ? (
-              <img
-                src={`http://localhost:3000${user.avatarUrl}`}
-                alt="avatar"
-              />
+              <img src={user.avatarUrl} alt="avatar" />
             ) : (
               <div className="profile-avatar-placeholder">
                 {user?.username?.[0]?.toUpperCase()}
