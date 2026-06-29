@@ -643,24 +643,21 @@ textarea {
 .media-viewer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.92);
+  background: rgba(0, 0, 0, 0.85);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 200;
-  backdrop-filter: blur(8px);
 }
 
 .media-viewer {
   display: flex;
   width: 90vw;
   max-width: 1200px;
-  height: 88vh;
+  height: 85vh;
   background: var(--bg);
-  border-radius: 16px;
+  border-radius: 12px;
   overflow: hidden;
-  border: 1px solid var(--border);
-  box-shadow: var(--shadow);
 }
 
 .media-viewer-left {
@@ -680,7 +677,6 @@ textarea {
   position: absolute;
   top: 12px;
   left: 12px;
-  z-index: 10;
 }
 
 .media-viewer-media {
@@ -689,7 +685,7 @@ textarea {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 0;
+  min-height: 0; /* ← важливо, без цього flex дитина може переповнити батька */
   overflow: hidden;
 }
 
@@ -712,13 +708,13 @@ textarea {
 }
 
 .media-viewer-thumb {
-  width: 52px;
-  height: 52px;
-  border-radius: 8px;
+  width: 50px;
+  height: 50px;
+  border-radius: 6px;
   overflow: hidden;
   cursor: pointer;
   opacity: 0.5;
-  transition: 0.15s;
+  transition: 0.2s;
   border: 2px solid transparent;
 }
 
@@ -735,14 +731,13 @@ textarea {
 }
 
 .media-viewer-right {
-  width: 360px;
+  width: 340px;
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
   overflow: hidden;
   padding: 16px;
-  gap: 10px;
-  background: var(--bg-secondary);
+  gap: 8px;
 }
 
 .media-viewer-comments {

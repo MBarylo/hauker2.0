@@ -261,16 +261,36 @@ const UserProfile = () => {
         />
       )}
 
-      <div className="profile-tabs">
+      <div
+        style={{
+          display: 'flex',
+          gap: '0',
+          marginTop: '16px',
+          border: '1px solid var(--border)',
+          borderRadius: '10px',
+          overflow: 'hidden',
+        }}
+      >
         {tabs.map((t) => (
-          <Button
+          <button
             key={t.key}
-            size="sm"
-            variant={tab === t.key ? 'solid' : 'outline'}
             onClick={() => setTab(t.key)}
+            style={{
+              flex: 1,
+              padding: '10px 4px',
+              background: tab === t.key ? 'var(--accent)' : 'transparent',
+              color: tab === t.key ? 'white' : 'var(--text-muted)',
+              border: 'none',
+              borderRight: '1px solid var(--border)',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: tab === t.key ? 600 : 400,
+              transition: 'all 0.15s ease',
+              fontFamily: 'inherit',
+            }}
           >
             {t.label}
-          </Button>
+          </button>
         ))}
       </div>
 

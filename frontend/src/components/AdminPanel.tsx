@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
-import { Button, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import type { User } from './pack/User';
 import type { PostType } from './pack/PostType';
@@ -14,6 +13,19 @@ type Comment = {
 };
 
 type AdminTab = 'users' | 'posts' | 'comments';
+
+const dangerBtn: React.CSSProperties = {
+  padding: '6px 12px',
+  background: 'rgba(248, 81, 73, 0.1)',
+  border: '1px solid var(--danger)',
+  borderRadius: '8px',
+  color: 'var(--danger)',
+  cursor: 'pointer',
+  fontSize: '13px',
+  fontFamily: 'inherit',
+  whiteSpace: 'nowrap',
+  transition: 'all 0.15s ease',
+};
 
 const AdminPanel = () => {
   const navigate = useNavigate();
@@ -70,20 +82,54 @@ const AdminPanel = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <div className="profile">
-        <h2>⚙️ Admin Panel</h2>
+      {/* заголовок */}
+      <div
+        style={{
+          background: 'var(--bg-secondary)',
+          border: '1px solid var(--border)',
+          borderRadius: '14px',
+          padding: '20px',
+          textAlign: 'center',
+          marginBottom: '16px',
+        }}
+      >
+        <h2 style={{ fontSize: '18px', fontWeight: 700, color: 'var(--text)' }}>
+          ⚙️ Admin Panel
+        </h2>
       </div>
 
-      <div className="profile-tabs" style={{ marginBottom: '1rem' }}>
-        {tabs.map((t) => (
-          <Button
+      {/* таби */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 0,
+          marginBottom: '16px',
+          border: '1px solid var(--border)',
+          borderRadius: '10px',
+          overflow: 'hidden',
+        }}
+      >
+        {tabs.map((t, i) => (
+          <button
             key={t.key}
-            size="sm"
-            variant={tab === t.key ? 'solid' : 'outline'}
             onClick={() => setTab(t.key)}
+            style={{
+              flex: 1,
+              padding: '10px 4px',
+              background: tab === t.key ? 'var(--accent)' : 'transparent',
+              color: tab === t.key ? 'white' : 'var(--text-muted)',
+              border: 'none',
+              borderRight:
+                i < tabs.length - 1 ? '1px solid var(--border)' : 'none',
+              cursor: 'pointer',
+              fontSize: '13px',
+              fontWeight: tab === t.key ? 600 : 400,
+              fontFamily: 'inherit',
+              transition: 'all 0.15s ease',
+            }}
           >
             {t.label}
-          </Button>
+          </button>
         ))}
       </div>
 
@@ -100,30 +146,30 @@ const AdminPanel = () => {
                 }}
               >
                 <div>
-                  <Text
-                    fontWeight="bold"
-                    style={{ cursor: 'pointer', color: 'var(--accent)' }}
+                  <p
+                    style={{
+                      fontWeight: 600,
+                      color: 'var(--accent)',
+                      cursor: 'pointer',
+                      marginBottom: 2,
+                    }}
                     onClick={() => navigate(`/user/${u.id}`)}
                   >
                     {u.username}
-                  </Text>
-                  <Text fontSize="sm" color="gray.500">
+                  </p>
+                  <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
                     {u.email}
-                  </Text>
+                  </p>
                   {u.role === 'admin' && (
-                    <Text fontSize="xs" color="yellow.400">
+                    <p style={{ fontSize: 12, color: '#f59e0b', marginTop: 2 }}>
                       ⭐ Admin
-                    </Text>
+                    </p>
                   )}
                 </div>
                 {u.role !== 'admin' && (
-                  <Button
-                    size="xs"
-                    colorScheme="red"
-                    onClick={() => deleteUser(u.id)}
-                  >
+                  <button style={dangerBtn} onClick={() => deleteUser(u.id)}>
                     Delete
-                  </Button>
+                  </button>
                 )}
               </div>
             </div>
@@ -141,20 +187,27 @@ const AdminPanel = () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'flex-start',
+                  gap: 8,
                 }}
               >
                 <div style={{ flex: 1 }}>
-                  <Text
-                    fontWeight="bold"
-                    fontSize="sm"
-                    style={{ cursor: 'pointer', color: 'var(--accent)' }}
+                  <p
+                    style={{
+                      fontWeight: 600,
+                      fontSize: 13,
+                      color: 'var(--accent)',
+                      cursor: 'pointer',
+                      marginBottom: 4,
+                    }}
                     onClick={() => navigate(`/user/${p.authorId}`)}
                   >
                     {usernames[p.authorId] ?? p.authorId}
-                  </Text>
-                  <Text fontSize="sm">{p.content}</Text>
+                  </p>
+                  <p style={{ fontSize: 14, color: 'var(--text)' }}>
+                    {p.content}
+                  </p>
                   {p.mediaUrls && p.mediaUrls.length > 0 && (
-                    <div className="media-grid" style={{ marginTop: '8px' }}>
+                    <div className="media-grid" style={{ marginTop: 8 }}>
                       {p.mediaUrls.map((url, i) =>
                         url.match(/\.(mp4|mov|avi)$/i) ? (
                           <video
@@ -176,18 +229,20 @@ const AdminPanel = () => {
                     </div>
                   )}
                   {p.repostById && (
-                    <Text fontSize="xs" color="gray.500">
+                    <p
+                      style={{
+                        fontSize: 12,
+                        color: 'var(--text-muted)',
+                        marginTop: 4,
+                      }}
+                    >
                       🔁 repost by {usernames[p.repostById] ?? p.repostById}
-                    </Text>
+                    </p>
                   )}
                 </div>
-                <Button
-                  size="xs"
-                  colorScheme="red"
-                  onClick={() => deletePost(p.id)}
-                >
+                <button style={dangerBtn} onClick={() => deletePost(p.id)}>
                   Delete
-                </Button>
+                </button>
               </div>
             </div>
           ))}
@@ -204,34 +259,40 @@ const AdminPanel = () => {
                   display: 'flex',
                   justifyContent: 'space-between',
                   alignItems: 'flex-start',
+                  gap: 8,
                 }}
               >
                 <div style={{ flex: 1 }}>
-                  <Text
-                    fontWeight="bold"
-                    fontSize="sm"
-                    style={{ cursor: 'pointer', color: 'var(--accent)' }}
+                  <p
+                    style={{
+                      fontWeight: 600,
+                      fontSize: 13,
+                      color: 'var(--accent)',
+                      cursor: 'pointer',
+                      marginBottom: 4,
+                    }}
                     onClick={() => navigate(`/user/${c.authorId}`)}
                   >
                     {usernames[c.authorId] ?? c.authorId}
-                  </Text>
-                  <Text fontSize="sm">{c.content}</Text>
-                  <Text
-                    fontSize="xs"
-                    color="gray.500"
-                    style={{ cursor: 'pointer' }}
+                  </p>
+                  <p style={{ fontSize: 14, color: 'var(--text)' }}>
+                    {c.content}
+                  </p>
+                  <p
+                    style={{
+                      fontSize: 12,
+                      color: 'var(--text-muted)',
+                      cursor: 'pointer',
+                      marginTop: 4,
+                    }}
                     onClick={() => navigate(`/post/${c.postId}`)}
                   >
                     → post {c.postId}
-                  </Text>
+                  </p>
                 </div>
-                <Button
-                  size="xs"
-                  colorScheme="red"
-                  onClick={() => deleteComment(c.id)}
-                >
+                <button style={dangerBtn} onClick={() => deleteComment(c.id)}>
                   Delete
-                </Button>
+                </button>
               </div>
             </div>
           ))}

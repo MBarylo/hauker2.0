@@ -81,9 +81,23 @@ const PostPage = () => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
     >
-      <Button size="xs" onClick={() => navigate(-1)}>
+      <button
+        onClick={() => navigate(-1)}
+        style={{
+          padding: '8px 16px',
+          background: 'transparent',
+          border: '1px solid var(--border)',
+          borderRadius: '8px',
+          color: 'var(--text)',
+          cursor: 'pointer',
+          fontSize: '14px',
+          fontFamily: 'inherit',
+          marginBottom: '16px',
+          transition: 'all 0.15s ease',
+        }}
+      >
         ← Back
-      </Button>
+      </button>
 
       <div className="post">
         <p
@@ -127,9 +141,24 @@ const PostPage = () => {
               value={commentText}
               onChange={(e) => setCommentText(e.target.value)}
             />
-            <Button size="md" onClick={submitComment}>
+            <button
+              onClick={submitComment}
+              style={{
+                width: '100%',
+                padding: '10px',
+                background: 'var(--accent)',
+                border: 'none',
+                borderRadius: '8px',
+                color: 'white',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontWeight: 600,
+                fontFamily: 'inherit',
+                transition: 'all 0.15s ease',
+              }}
+            >
               Comment
-            </Button>
+            </button>
           </div>
         ) : (
           <Text>

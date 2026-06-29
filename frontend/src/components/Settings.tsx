@@ -29,9 +29,25 @@ const Settings = ({ onClose }: Props) => {
           }}
         >
           <Text fontWeight="bold">Settings</Text>
-          <Button size="xs" onClick={onClose}>
+          <button
+            onClick={onClose}
+            style={{
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              width: '32px',
+              height: '32px',
+              cursor: 'pointer',
+              color: 'var(--text)',
+              fontSize: '16px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              fontFamily: 'inherit',
+            }}
+          >
             ✕
-          </Button>
+          </button>
         </div>
 
         <div
@@ -50,25 +66,42 @@ const Settings = ({ onClose }: Props) => {
             }}
           >
             <Text>Theme</Text>
-            <Button
-              size="sm"
-              variant="outline"
+            <button
               onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}
+              style={{
+                padding: '8px 16px',
+                background: 'transparent',
+                border: '1px solid var(--border)',
+                borderRadius: '8px',
+                color: 'var(--text)',
+                cursor: 'pointer',
+                fontSize: '14px',
+                fontFamily: 'inherit',
+              }}
             >
               {theme === 'light' ? '🌙 Dark' : '☀️ Light'}
-            </Button>
+            </button>
           </div>
 
           <hr style={{ borderColor: 'var(--border)' }} />
 
-          <Button
-            size="sm"
-            colorScheme="red"
-            variant="outline"
+          <button
             onClick={handleLogout}
+            style={{
+              width: '100%',
+              padding: '10px',
+              background: 'transparent',
+              border: '1px solid var(--danger)',
+              borderRadius: '8px',
+              color: 'var(--danger)',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontFamily: 'inherit',
+              transition: 'all 0.15s ease',
+            }}
           >
             🚪 Logout
-          </Button>
+          </button>
         </div>
       </div>
     </div>

@@ -141,16 +141,31 @@ const PostForm = () => {
           </div>
         )}
 
-        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-          <Button
-            flex={1}
-            size="sm"
+        <div style={{ display: 'flex', gap: '8px' }}>
+          <button
             type="button"
-            variant="outline"
             onClick={() => fileInputRef.current?.click()}
+            style={{
+              flex: 1,
+              padding: '10px',
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              color: 'var(--text-muted)',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontFamily: 'inherit',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.borderColor = 'var(--accent)')
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.borderColor = 'var(--border)')
+            }
           >
             📎 {files.length > 0 ? `${files.length} file(s)` : 'Add media'}
-          </Button>
+          </button>
           <input
             ref={fileInputRef}
             type="file"
@@ -159,33 +174,66 @@ const PostForm = () => {
             style={{ display: 'none' }}
             onChange={handleFiles}
           />
-          <Button size="md" type="submit" flex={1}>
+          <button
+            type="submit"
+            style={{
+              flex: 1,
+              padding: '10px',
+              background: 'var(--accent)',
+              border: 'none',
+              borderRadius: '8px',
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: 600,
+              fontFamily: 'inherit',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.background = 'var(--accent-hover)')
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.background = 'var(--accent)')
+            }
+          >
             Post
-          </Button>
+          </button>
         </div>
       </motion.form>
 
       {error && <Text className="error">{error}</Text>}
 
-      <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-        <Button
-          flex={1}
-          size="md"
-          variant={feedTab === 'all' ? 'solid' : 'outline'}
-          colorScheme="blue"
-          onClick={() => setFeedTab('all')}
-        >
-          🌍 All
-        </Button>
-        <Button
-          flex={1}
-          size="md"
-          variant={feedTab === 'following' ? 'solid' : 'outline'}
-          colorScheme="blue"
-          onClick={() => setFeedTab('following')}
-        >
-          👥 Following
-        </Button>
+      <div
+        style={{
+          display: 'flex',
+          gap: '0',
+          marginBottom: '16px',
+          border: '1px solid var(--border)',
+          borderRadius: '10px',
+          overflow: 'hidden',
+        }}
+      >
+        {(['all', 'following'] as const).map((t, i) => (
+          <button
+            key={t}
+            onClick={() => setFeedTab(t)}
+            style={{
+              flex: 1,
+              padding: '10px',
+              background: feedTab === t ? 'var(--accent)' : 'transparent',
+              color: feedTab === t ? 'white' : 'var(--text-muted)',
+              border: 'none',
+              borderRight: i === 0 ? '1px solid var(--border)' : 'none',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: feedTab === t ? 600 : 400,
+              fontFamily: 'inherit',
+              transition: 'all 0.15s ease',
+            }}
+          >
+            {t === 'all' ? '🌍 All' : '👥 Following'}
+          </button>
+        ))}
       </div>
 
       <PostList
