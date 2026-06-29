@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { api } from '../api';
-import { Button, Text, Textarea } from '@chakra-ui/react';
 import type { PostType } from './pack/PostType';
 import type { Comment } from './pack/Comment';
 import type { User } from './pack/User';
@@ -60,57 +59,79 @@ const MediaViewer = ({ post, initialIndex, authorName, onClose }: Props) => {
   const currentUrl = urls[index];
   const isVideo = currentUrl?.match(/\.(mp4|mov|avi)$/i);
 
+  const btnStyle = (disabled?: boolean): React.CSSProperties => ({
+    padding: '6px 14px',
+    background: disabled ? 'var(--btn)' : 'var(--accent)',
+    border: 'none',
+    borderRadius: '8px',
+    color: disabled ? 'var(--text-muted)' : 'white',
+    cursor: disabled ? 'not-allowed' : 'pointer',
+    fontSize: '16px',
+    fontFamily: 'inherit',
+    opacity: disabled ? 0.5 : 1,
+    transition: 'all 0.15s ease',
+  });
+
   return (
     <div className="media-viewer-overlay" onClick={onClose}>
       <div className="media-viewer" onClick={(e) => e.stopPropagation()}>
         {/* ліва частина — медіа */}
         <div className="media-viewer-left">
-          <Button size="xs" className="media-viewer-close" onClick={onClose}>
+          <button
+            className="media-viewer-close"
+            onClick={onClose}
+            style={{
+              position: 'absolute',
+              top: 12,
+              left: 12,
+              background: 'rgba(0,0,0,0.6)',
+              border: 'none',
+              borderRadius: '50%',
+              width: 32,
+              height: 32,
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: 16,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
             ✕
-          </Button>
+          </button>
 
           <div className="media-viewer-media">
             {isVideo ? (
-              <video
-                src={`http://localhost:3000${currentUrl}`}
-                controls
-                className="media-viewer-file"
-              />
+              <video src={currentUrl} controls className="media-viewer-file" />
             ) : (
-              <img
-                src={`http://localhost:3000${currentUrl}`}
-                alt=""
-                className="media-viewer-file"
-              />
+              <img src={currentUrl} alt="" className="media-viewer-file" />
             )}
           </div>
 
-          {/* стрілки */}
           {urls.length > 1 && (
             <div className="media-viewer-arrows">
-              <Button
-                size="sm"
-                onClick={() => setIndex((i) => Math.max(0, i - 1))}
+              <button
+                style={btnStyle(index === 0)}
                 disabled={index === 0}
+                onClick={() => setIndex((i) => Math.max(0, i - 1))}
               >
                 ←
-              </Button>
-              <Text fontSize="sm">
+              </button>
+              <span style={{ color: 'white', fontSize: 14 }}>
                 {index + 1} / {urls.length}
-              </Text>
-              <Button
-                size="sm"
+              </span>
+              <button
+                style={btnStyle(index === urls.length - 1)}
+                disabled={index === urls.length - 1}
                 onClick={() =>
                   setIndex((i) => Math.min(urls.length - 1, i + 1))
                 }
-                disabled={index === urls.length - 1}
               >
                 →
-              </Button>
+              </button>
             </div>
           )}
 
-          {/* мініатюри */}
           {urls.length > 1 && (
             <div className="media-viewer-thumbs">
               {urls.map((url, i) => (
@@ -120,9 +141,9 @@ const MediaViewer = ({ post, initialIndex, authorName, onClose }: Props) => {
                   onClick={() => setIndex(i)}
                 >
                   {url.match(/\.(mp4|mov|avi)$/i) ? (
-                    <video src={`http://localhost:3000${url}`} />
+                    <video src={url} />
                   ) : (
-                    <img src={`http://localhost:3000${url}`} alt="" />
+                    <img src={url} alt="" />
                   )}
                 </div>
               ))}
@@ -130,9 +151,18 @@ const MediaViewer = ({ post, initialIndex, authorName, onClose }: Props) => {
           )}
         </div>
 
-        {/* права частина — вміст поста */}
+        {/* права частина */}
         <div className="media-viewer-right">
-          <div className="post" style={{ cursor: 'default' }}>
+          <div
+            style={{
+              background: 'var(--bg-tertiary)',
+              padding: '12px',
+              borderRadius: '10px',
+              border: '1px solid var(--border)',
+              width: '100%', // ← додай
+              boxSizing: 'border-box', // ← додай
+            }}
+          >
             <p
               className="post-author"
               style={{ cursor: 'pointer' }}
@@ -146,13 +176,26 @@ const MediaViewer = ({ post, initialIndex, authorName, onClose }: Props) => {
             <p className="post-text">{post.content}</p>
           </div>
 
-          <Text fontWeight="bold" style={{ padding: '8px 0' }}>
+          <p
+            style={{ fontWeight: 600, padding: '8px 0', color: 'var(--text)' }}
+          >
             Comments ({comments.length})
-          </Text>
+          </p>
 
           <div className="media-viewer-comments">
             {comments.map((c) => (
-              <div key={c.id} className="post">
+              <div
+                key={c.id}
+                style={{
+                  background: 'var(--bg-tertiary)',
+                  padding: '12px',
+                  borderRadius: '10px',
+                  border: '1px solid var(--border)',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '4px',
+                }}
+              >
                 <p
                   className="post-author"
                   style={{ cursor: 'pointer' }}
@@ -169,16 +212,49 @@ const MediaViewer = ({ post, initialIndex, authorName, onClose }: Props) => {
           </div>
 
           {user && (
-            <div className="post-form" style={{ marginTop: 'auto' }}>
-              <Textarea
-                size="sm"
+            <div
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 8,
+                marginTop: 'auto',
+              }}
+            >
+              <textarea
                 placeholder="Write a comment..."
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
+                style={{
+                  padding: '10px',
+                  borderRadius: 8,
+                  border: '1px solid var(--border)',
+                  background: 'var(--bg-tertiary)',
+                  color: 'var(--text)',
+                  fontSize: 14,
+                  fontFamily: 'inherit',
+                  resize: 'none',
+                  minHeight: 70,
+                  outline: 'none',
+                  boxSizing: 'border-box',
+                }}
               />
-              <Button size="sm" onClick={submitComment}>
+              <button
+                onClick={submitComment}
+                style={{
+                  padding: '10px',
+                  background: 'var(--accent)',
+                  border: 'none',
+                  borderRadius: 8,
+                  color: 'white',
+                  cursor: 'pointer',
+                  fontSize: 14,
+                  fontWeight: 600,
+                  fontFamily: 'inherit',
+                  boxSizing: 'border-box',
+                }}
+              >
                 Comment
-              </Button>
+              </button>
             </div>
           )}
         </div>

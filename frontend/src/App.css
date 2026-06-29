@@ -640,29 +640,48 @@ textarea {
 }
 
 /* ===== MEDIA VIEWER ===== */
+
+.media-viewer-right::-webkit-scrollbar {
+  width: 4px;
+}
+
+.media-viewer-right::-webkit-scrollbar-track {
+  background: transparent;
+  margin: 20px 0;
+}
+
+.media-viewer-right::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 2px;
+}
 .media-viewer-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
+  background: rgba(0, 0, 0, 0.92);
+  z-index: 200;
+  backdrop-filter: blur(8px);
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 200;
+  padding: 20px;
 }
 
 .media-viewer {
   display: flex;
   width: 90vw;
   max-width: 1200px;
-  height: 85vh;
+  height: 88vh;
   background: var(--bg);
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow);
+  box-sizing: border-box;
 }
 
 .media-viewer-left {
-  flex: 1.5;
-  background: #000;
+  flex: 0 0 calc(90vw - 360px);
+  background: transparent;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -677,6 +696,7 @@ textarea {
   position: absolute;
   top: 12px;
   left: 12px;
+  z-index: 10;
 }
 
 .media-viewer-media {
@@ -685,7 +705,7 @@ textarea {
   align-items: center;
   justify-content: center;
   width: 100%;
-  min-height: 0; /* ← важливо, без цього flex дитина може переповнити батька */
+  min-height: 0;
   overflow: hidden;
 }
 
@@ -708,13 +728,13 @@ textarea {
 }
 
 .media-viewer-thumb {
-  width: 50px;
-  height: 50px;
-  border-radius: 6px;
+  width: 52px;
+  height: 52px;
+  border-radius: 8px;
   overflow: hidden;
   cursor: pointer;
   opacity: 0.5;
-  transition: 0.2s;
+  transition: 0.15s;
   border: 2px solid transparent;
 }
 
@@ -731,13 +751,17 @@ textarea {
 }
 
 .media-viewer-right {
-  width: 340px;
+  flex: 360px;
+  min-width: 360px;
   border-left: 1px solid var(--border);
   display: flex;
   flex-direction: column;
-  overflow: hidden;
-  padding: 16px;
-  gap: 8px;
+  overflow-y: auto; /* ← замість overflow: hidden */
+  overflow-x: hidden;
+  padding: 20px;
+  gap: 10px;
+  background: var(--bg-secondary);
+  scrollbar-gutter: stable;
 }
 
 .media-viewer-comments {
@@ -746,6 +770,7 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  min-height: 0; /* ← додай це */
 }
 
 /* ===== ERROR ===== */

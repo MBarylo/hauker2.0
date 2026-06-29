@@ -66,9 +66,30 @@ const LoginForm = () => {
             placeholder="Password"
             onChange={(e) => setPassword(e.target.value)}
           />
-          <Button size="md" type="submit" colorScheme="blue" width="100%">
+          <button
+            type="submit"
+            style={{
+              width: '100%',
+              padding: '12px',
+              background: 'var(--accent)',
+              border: 'none',
+              borderRadius: '8px',
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: '15px',
+              fontWeight: 600,
+              fontFamily: 'inherit',
+              transition: 'all 0.15s ease',
+            }}
+            onMouseOver={(e) =>
+              (e.currentTarget.style.background = 'var(--accent-hover)')
+            }
+            onMouseOut={(e) =>
+              (e.currentTarget.style.background = 'var(--accent)')
+            }
+          >
             Sign in
-          </Button>
+          </button>
         </form>
 
         <Text

@@ -154,9 +154,23 @@ const UserProfile = () => {
   return (
     <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
       {!isOwnProfile && (
-        <Button size="xs" onClick={() => navigate(-1)}>
+        <button
+          onClick={() => navigate(-1)}
+          style={{
+            padding: '8px 16px',
+            background: 'transparent',
+            border: '1px solid var(--border)',
+            borderRadius: '8px',
+            color: 'var(--text)',
+            cursor: 'pointer',
+            fontSize: '14px',
+            fontFamily: 'inherit',
+            marginBottom: '16px',
+            transition: 'all 0.15s ease',
+          }}
+        >
           ← Back
-        </Button>
+        </button>
       )}
 
       {/* шапка */}

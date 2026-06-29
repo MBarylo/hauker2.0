@@ -4,6 +4,7 @@ import { Button, Input, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import type { PostType } from './pack/PostType';
 import MediaViewer from './MediaViewer';
+import { createPortal } from 'react-dom';
 
 type Props = {
   post: PostType;
@@ -233,14 +234,16 @@ const Post = ({
         </div>
       )}
 
-      {mediaViewerIndex !== null && (
-        <MediaViewer
-          post={post}
-          initialIndex={mediaViewerIndex}
-          authorName={authorName}
-          onClose={() => setMediaViewerIndex(null)}
-        />
-      )}
+      {mediaViewerIndex !== null &&
+        createPortal(
+          <MediaViewer
+            post={post}
+            initialIndex={mediaViewerIndex}
+            authorName={authorName}
+            onClose={() => setMediaViewerIndex(null)}
+          />,
+          document.body,
+        )}
 
       <div className="post-footer">
         {/* кнопка репосту — для всіх крім власника репосту */}
