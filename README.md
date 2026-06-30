@@ -164,10 +164,6 @@ npm run dev
 - `GET /admin/comments`
 - `DELETE /admin/comments/:id`
 
-## 📸 Screenshots
-
-(add interface screenshots here)
-
 ## 👨‍💻 Author
 
 Matvii
