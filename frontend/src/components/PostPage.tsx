@@ -9,6 +9,7 @@ import type { User } from './pack/User';
 import type { PostType } from './pack/PostType';
 import CommentItem from './CommentsItem';
 import MediaViewer from './MediaViewer';
+import Toast from './Toast';
 
 const PostPage = () => {
   const { id } = useParams();
@@ -194,7 +195,9 @@ const PostPage = () => {
           </Text>
         )}
 
-        {error && <Text color="red.500">{error}</Text>}
+        {error && (
+          <Toast message={error} type="error" onClose={() => setError('')} />
+        )}
       </div>
     </motion.div>
   );

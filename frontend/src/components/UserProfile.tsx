@@ -10,6 +10,7 @@ import FollowList from './FollowList';
 import CommentItem from './CommentsItem';
 import type { Comment } from './pack/Comment';
 import { useSearchParams } from 'react-router-dom';
+import Toast from './Toast';
 
 type Tab = 'posts' | 'reposts' | 'liked' | 'commented' | 'bookmarks';
 type FollowModal = 'followers' | 'following' | null;
@@ -340,9 +341,11 @@ const UserProfile = () => {
               </button>
             </div>
             {usernameError && (
-              <Text color="red.500" fontSize="sm">
-                {usernameError}
-              </Text>
+              <Toast
+                message={usernameError}
+                type="error"
+                onClose={() => setUsernameError('')}
+              />
             )}
           </div>
         ) : (

@@ -5,6 +5,7 @@ import { api } from '../api';
 import type { FormEvent } from 'react';
 import { Input, Textarea, Text } from '@chakra-ui/react';
 import type { PostType } from './pack/PostType';
+import Toast from './Toast';
 
 type FeedTab = 'all' | 'following';
 
@@ -103,10 +104,8 @@ const PostForm = () => {
 
     if (selected.length > 4) {
       setError('You can attach up to 4 files');
-      const sliced = selected.slice(0, 4);
-      setFiles(sliced);
-      setPreviews(sliced.map((f) => URL.createObjectURL(f)));
-      return;
+      e.target.value = ''; // ← скидає вибір файлів
+      return; // ← не зберігаємо нічого
     }
 
     setError('');
@@ -247,7 +246,9 @@ const PostForm = () => {
         </div>
       </motion.form>
 
-      {error && <Text className="error">{error}</Text>}
+      {error && (
+        <Toast message={error} type="error" onClose={() => setError('')} />
+      )}
 
       <div
         style={{

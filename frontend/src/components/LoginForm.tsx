@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { api } from '../api';
 import { useNavigate } from 'react-router-dom';
-import { Input, Button, Text } from '@chakra-ui/react';
+import { Input, Text } from '@chakra-ui/react';
+import Toast from './Toast';
 
 const LoginForm = () => {
   const [login, setLogin] = useState('');
@@ -109,9 +110,7 @@ const LoginForm = () => {
         </Text>
 
         {error && (
-          <Text color="red.500" textAlign="center">
-            {error}
-          </Text>
+          <Toast message={error} type="error" onClose={() => setError('')} />
         )}
       </div>
     </div>
