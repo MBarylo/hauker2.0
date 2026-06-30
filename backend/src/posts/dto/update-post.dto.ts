@@ -4,5 +4,8 @@ export class UpdatePostDto {
   @IsOptional()
   @IsString()
   @Length(1, 200)
-  content!: string;
+  content?: string;
+
+  @IsOptional()
+  existingMediaUrls?: any;
 }

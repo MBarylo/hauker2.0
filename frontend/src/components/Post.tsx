@@ -1,5 +1,5 @@
 import { api } from '../api';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Button, Input, Text } from '@chakra-ui/react';
 import { useNavigate } from 'react-router-dom';
 import type { PostType } from './pack/PostType';
@@ -51,9 +51,54 @@ const Post = ({
 
   const [menuOpen, setMenuOpen] = useState(false);
 
+  const [editMediaUrls, setEditMediaUrls] = useState<string[]>(
+    post.mediaUrls ?? [],
+  );
+  const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [newPreviews, setNewPreviews] = useState<string[]>([]);
+  const editFileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const handleNewFiles = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const totalSlots = 4 - editMediaUrls.length;
+    const selected = Array.from(e.target.files ?? []).slice(0, totalSlots);
+    setNewFiles(selected);
+    setNewPreviews(selected.map((f) => URL.createObjectURL(f)));
+  };
+
+  const removeExistingMedia = (url: string) => {
+    setEditMediaUrls((prev) => prev.filter((u) => u !== url));
+  };
+
+  const removeNewFile = (index: number) => {
+    setNewFiles((prev) => prev.filter((_, i) => i !== index));
+    setNewPreviews((prev) => prev.filter((_, i) => i !== index));
+  };
+
+  const updatePost = async () => {
+    const formData = new FormData();
+    formData.append('content', newContent);
+    editMediaUrls.forEach((url) => formData.append('existingMediaUrls', url));
+    newFiles.forEach((f) => formData.append('files', f));
+
+    const res = await api.patch(`/posts/${post.id}`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+
+    setPosts((prev: any) =>
+      prev.map((p: any) => (p.id === post.id ? res.data : p)),
+    );
+
+    setEditing(false);
+    setNewFiles([]);
+    setNewPreviews([]);
+  };
+
   useEffect(() => {
     setLikedBy(post.likedBy ?? []);
   }, [post.likedBy]);
+  useEffect(() => {
+    setEditMediaUrls(post.mediaUrls ?? []);
+  }, [post.mediaUrls]);
 
   useEffect(() => {
     setBookmarked(isBookmarked ?? false);
@@ -65,18 +110,6 @@ const Post = ({
     });
 
     setPosts((prev: any) => prev.filter((p: any) => p.id !== post.id));
-  };
-
-  const updatePost = async () => {
-    const res = await api.patch(`/posts/${post.id}`, {
-      content: newContent,
-    });
-
-    setPosts((prev: any) =>
-      prev.map((p: any) => (p.id === post.id ? res.data : p)),
-    );
-
-    setEditing(false);
   };
 
   const handleRepost = async () => {
@@ -209,14 +242,73 @@ const Post = ({
             onChange={(e) => setNewContent(e.target.value)}
             onClick={(e) => e.stopPropagation()}
           />
-          <div className="post-footer">
+
+          {(editMediaUrls.length > 0 || newPreviews.length > 0) && (
+            <div className="media-preview" onClick={(e) => e.stopPropagation()}>
+              {editMediaUrls.map((url, i) => (
+                <div key={`existing-${i}`} className="media-preview-item">
+                  {url.match(/\.(mp4|mov|avi)$/i) ? (
+                    <video src={url} />
+                  ) : (
+                    <img src={url} alt="" />
+                  )}
+                  <button
+                    className="media-remove"
+                    onClick={() => removeExistingMedia(url)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+              {newPreviews.map((src, i) => (
+                <div key={`new-${i}`} className="media-preview-item">
+                  {newFiles[i]?.type.startsWith('video') ? (
+                    <video src={src} />
+                  ) : (
+                    <img src={src} alt="" />
+                  )}
+                  <button
+                    className="media-remove"
+                    onClick={() => removeNewFile(i)}
+                  >
+                    ✕
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
+
+          <div className="post-footer" onClick={(e) => e.stopPropagation()}>
+            {editMediaUrls.length + newFiles.length < 4 && (
+              <Button
+                size="xs"
+                variant="outline"
+                onClick={() => editFileInputRef.current?.click()}
+              >
+                📎 Add media
+              </Button>
+            )}
+            <input
+              ref={editFileInputRef}
+              type="file"
+              accept="image/jpeg,image/jpg,image/png,image/webp,video/mp4,video/mov,video/avi"
+              multiple
+              style={{ display: 'none' }}
+              onChange={handleNewFiles}
+            />
             <Button
               size="xs"
-              onClick={(e) => {
-                e.stopPropagation();
-                updatePost();
+              onClick={() => {
+                setEditing(false);
+                setNewContent(post.content);
+                setEditMediaUrls(post.mediaUrls ?? []);
+                setNewFiles([]);
+                setNewPreviews([]);
               }}
             >
+              Cancel
+            </Button>
+            <Button size="xs" colorScheme="blue" onClick={updatePost}>
               Save
             </Button>
           </div>
@@ -225,7 +317,8 @@ const Post = ({
         <p className="post-text">{post.content}</p>
       )}
 
-      {post.mediaUrls && post.mediaUrls.length > 0 && (
+      {/* окремий блок для показу медіа коли НЕ редагуємо */}
+      {!editing && post.mediaUrls && post.mediaUrls.length > 0 && (
         <div className="media-grid" onClick={(e) => e.stopPropagation()}>
           {post.mediaUrls.map((url, i) =>
             url.match(/\.(mp4|mov|avi)$/i) ? (

@@ -18,7 +18,9 @@ export class PostsService {
   ) {}
 
   async getAll() {
-    const posts = await this.postsRepository.find();
+    const posts = await this.postsRepository.find({
+      order: { id: 'ASC' },
+    });
     const reversed = [...posts].reverse();
     return Promise.all(
       reversed.map(async (p) => {
@@ -193,10 +195,25 @@ export class PostsService {
     return { message: 'Deleted' };
   }
 
-  async update(id: string, content?: string) {
+  async update(
+    id: string,
+    content?: string,
+    existingMediaUrls?: string[],
+    newMediaUrls?: string[],
+  ) {
     const post = await this.postsRepository.findOneBy({ id });
     if (!post) throw new NotFoundException('Post not found');
+
     if (content !== undefined) post.content = content;
+
+    if (
+      existingMediaUrls !== undefined ||
+      (newMediaUrls && newMediaUrls.length > 0)
+    ) {
+      const kept = existingMediaUrls ?? [];
+      post.mediaUrls = [...kept, ...(newMediaUrls ?? [])].slice(0, 4);
+    }
+
     return this.postsRepository.save(post);
   }
 

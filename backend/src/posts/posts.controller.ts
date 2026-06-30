@@ -73,8 +73,26 @@ export class PostsController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() dto: UpdatePostDto) {
-    return this.postsService.update(id, dto.content);
+  @UseInterceptors(FilesInterceptor('files', 4, { storage: mediaStorage }))
+  update(
+    @Param('id') id: string,
+    @Body() dto: UpdatePostDto,
+    @UploadedFiles() files: Express.Multer.File[],
+  ) {
+    let existingMediaUrls: string[] = [];
+    if (dto.existingMediaUrls) {
+      existingMediaUrls = Array.isArray(dto.existingMediaUrls)
+        ? dto.existingMediaUrls
+        : [dto.existingMediaUrls];
+    }
+
+    const newMediaUrls = files?.map((f: any) => f.path) ?? [];
+    return this.postsService.update(
+      id,
+      dto.content,
+      existingMediaUrls,
+      newMediaUrls,
+    );
   }
 
   @Delete(':id/repost')
