@@ -4,6 +4,7 @@ import { api } from '../api';
 import type { PostType } from './pack/PostType';
 import type { Comment } from './pack/Comment';
 import type { User } from './pack/User';
+import CommentItem from './CommentsItem';
 
 type Props = {
   post: PostType;
@@ -54,6 +55,11 @@ const MediaViewer = ({ post, initialIndex, authorName, onClose }: Props) => {
     });
     setComments((prev) => [...prev, res.data]);
     setCommentText('');
+  };
+
+  const deleteComment = async (commentId: string) => {
+    await api.delete(`/comments/${commentId}`, { data: { userId: user.id } });
+    setComments((prev) => prev.filter((c) => c.id !== commentId));
   };
 
   const currentUrl = urls[index];
@@ -183,32 +189,28 @@ const MediaViewer = ({ post, initialIndex, authorName, onClose }: Props) => {
           </p>
 
           <div className="media-viewer-comments">
-            {comments.map((c) => (
-              <div
-                key={c.id}
-                style={{
-                  background: 'var(--bg-tertiary)',
-                  padding: '12px',
-                  borderRadius: '10px',
-                  border: '1px solid var(--border)',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '4px',
-                }}
-              >
-                <p
-                  className="post-author"
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => {
-                    navigate(`/user/${c.authorId}`);
+            <div className="media-viewer-comments">
+              {comments.map((c) => (
+                <CommentItem
+                  key={c.id}
+                  comment={c}
+                  authorName={getUsername(c.authorId)}
+                  currentUserId={user?.id}
+                  onDelete={deleteComment}
+                  onEdit={(id, content) => {
+                    setComments((prev) =>
+                      prev.map((cm) =>
+                        cm.id === id ? { ...cm, content } : cm,
+                      ),
+                    );
+                  }}
+                  onNavigate={(userId) => {
+                    navigate(`/user/${userId}`);
                     onClose();
                   }}
-                >
-                  {getUsername(c.authorId)}
-                </p>
-                <p className="post-text">{c.content}</p>
-              </div>
-            ))}
+                />
+              ))}
+            </div>
           </div>
 
           {user && (

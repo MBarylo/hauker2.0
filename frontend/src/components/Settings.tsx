@@ -4,17 +4,19 @@ import { useNavigate } from 'react-router-dom';
 
 type Props = {
   onClose: () => void;
+  onLogout: () => void;
 };
 
-const Settings = ({ onClose }: Props) => {
+const Settings = ({ onClose, onLogout }: Props) => {
   const { theme, setTheme } = usePost();
   const navigate = useNavigate();
 
   const handleLogout = () => {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    onLogout();
+    console.log('onLogout called');
     onClose();
-    window.dispatchEvent(new Event('storage'));
     navigate('/login');
   };
 

@@ -44,10 +44,56 @@ const PostForm = () => {
 
   if (!user) {
     return (
-      <div className="feed-inner">
-        <p className="empty">
-          Please <a href="/login">log in</a> to post.
+      <div
+        className="feed-inner"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          height: '60vh',
+          gap: '16px',
+        }}
+      >
+        <p style={{ fontSize: '20px', fontWeight: 600, color: 'var(--text)' }}>
+          Welcome to Hauker
         </p>
+        <p style={{ color: 'var(--text-muted)' }}>
+          Sign in to post and interact with others
+        </p>
+        <div style={{ display: 'flex', gap: '12px', marginTop: '8px' }}>
+          <button
+            onClick={() => (window.location.href = '/login')}
+            style={{
+              padding: '10px 24px',
+              background: 'var(--accent)',
+              border: 'none',
+              borderRadius: '8px',
+              color: 'white',
+              cursor: 'pointer',
+              fontSize: '15px',
+              fontWeight: 600,
+              fontFamily: 'inherit',
+            }}
+          >
+            Sign in
+          </button>
+          <button
+            onClick={() => (window.location.href = '/register')}
+            style={{
+              padding: '10px 24px',
+              background: 'transparent',
+              border: '1px solid var(--border)',
+              borderRadius: '8px',
+              color: 'var(--text)',
+              cursor: 'pointer',
+              fontSize: '15px',
+              fontFamily: 'inherit',
+            }}
+          >
+            Register
+          </button>
+        </div>
       </div>
     );
   }

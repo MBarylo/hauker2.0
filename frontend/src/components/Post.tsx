@@ -24,12 +24,22 @@ const Post = ({
   setBookmarkedIds,
 }: Props) => {
   const user = JSON.parse(localStorage.getItem('user') || 'null');
-  const isOwner = user?.id === post.authorId;
-  const isMyRepost = user?.id === post.repostById;
+
+  if (!user) {
+    return (
+      <div className="post" style={{ cursor: 'default' }}>
+        <p className="post-author">{authorName}</p>
+        <p className="post-text">{post.content}</p>
+      </div>
+    );
+  }
+
+  const isOwner = user ? user.id === post.authorId : false;
+  const isMyRepost = user ? user.id === post.repostById : false;
   const navigate = useNavigate();
 
   const [likedBy, setLikedBy] = useState<string[]>(post.likedBy ?? []);
-  const isLiked = likedBy.includes(user?.id);
+  const isLiked = user ? likedBy.includes(user.id) : false;
 
   const [editing, setEditing] = useState(false);
   const [newContent, setNewContent] = useState(post.content);

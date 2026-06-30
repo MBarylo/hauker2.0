@@ -28,7 +28,7 @@ function App() {
         const exists = res.data.find((u: any) => u.id === parsed.id);
         if (!exists) {
           localStorage.removeItem('user');
-          setCurrentUser(null); // ← оновлюємо стан
+          setCurrentUser(null);
         }
         setReady(true);
       });
@@ -42,8 +42,17 @@ function App() {
     };
 
     window.addEventListener('storage', handleStorage);
-    return () => window.removeEventListener('storage', handleStorage);
+    window.addEventListener('auth-change', handleStorage);
+    return () => {
+      window.removeEventListener('storage', handleStorage);
+      window.removeEventListener('auth-change', handleStorage);
+    };
   }, []);
+
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem('user') || 'null');
+    setCurrentUser(user);
+  }, [location]);
 
   if (!ready) return null;
 
@@ -71,7 +80,12 @@ function App() {
             ⚙️ Settings
           </button>
         </nav>
-        {settingsOpen && <Settings onClose={() => setSettingsOpen(false)} />}
+        {settingsOpen && (
+          <Settings
+            onClose={() => setSettingsOpen(false)}
+            onLogout={() => setCurrentUser(null)}
+          />
+        )}
       </aside>
 
       <main className="feed">

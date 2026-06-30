@@ -1,11 +1,12 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { api } from '../api';
-import { Button, Input, Textarea, Text } from '@chakra-ui/react';
+import { Textarea, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
 import type { Comment } from './pack/Comment';
 import type { User } from './pack/User';
 import type { PostType } from './pack/PostType';
+import CommentItem from './CommentsItem';
 
 const PostPage = () => {
   const { id } = useParams();
@@ -114,23 +115,19 @@ const PostPage = () => {
         <Text fontWeight="bold">Comments ({comments.length})</Text>
 
         {comments.map((c) => (
-          <div key={c.id} className="post">
-            <p
-              className="post-author"
-              onClick={() => navigate(`/user/${c.authorId}`)}
-              style={{ cursor: 'pointer' }}
-            >
-              {getUsername(c.authorId)}
-            </p>
-            <p className="post-text">{c.content}</p>
-            {user?.id === c.authorId && (
-              <div className="post-footer">
-                <Button size="xs" onClick={() => deleteComment(c.id)}>
-                  Delete
-                </Button>
-              </div>
-            )}
-          </div>
+          <CommentItem
+            key={c.id}
+            comment={c}
+            authorName={getUsername(c.authorId)}
+            currentUserId={user?.id}
+            onDelete={deleteComment}
+            onEdit={(id, content) => {
+              setComments((prev) =>
+                prev.map((cm) => (cm.id === id ? { ...cm, content } : cm)),
+              );
+            }}
+            onNavigate={(userId) => navigate(`/user/${userId}`)}
+          />
         ))}
 
         {user ? (
