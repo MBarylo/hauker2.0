@@ -8,12 +8,15 @@ import { Repository } from 'typeorm';
 import { Post } from './entities/post.entity';
 import { CreatePostDto } from './dto/create-post.dto';
 import { CommentsService } from '../comments/comments.service';
+import { Bookmark } from '../users/entities/bookmark.entity';
 
 @Injectable()
 export class PostsService {
   constructor(
     @InjectRepository(Post)
     private postsRepository: Repository<Post>,
+    @InjectRepository(Bookmark)
+    private bookmarksRepository: Repository<Bookmark>,
     private commentsService: CommentsService,
   ) {}
 
@@ -118,6 +121,8 @@ export class PostsService {
     if (!post) throw new NotFoundException('Post not found');
     if (post.repostById !== String(userId))
       throw new ForbiddenException('You cannot delete this repost');
+
+    await this.bookmarksRepository.delete({ postId }); // ← додай
     await this.postsRepository.remove(post);
     return { message: 'Deleted' };
   }
@@ -191,6 +196,8 @@ export class PostsService {
   async adminDelete(id: string) {
     const post = await this.postsRepository.findOneBy({ id });
     if (!post) throw new NotFoundException('Post not found');
+
+    await this.bookmarksRepository.delete({ postId: id }); // ← видали закладки
     await this.postsRepository.remove(post);
     return { message: 'Deleted' };
   }
@@ -222,6 +229,8 @@ export class PostsService {
     if (!post) throw new NotFoundException('Post not found');
     if (post.authorId !== String(userId))
       throw new ForbiddenException('You cannot delete чужий пост');
+
+    await this.bookmarksRepository.delete({ postId: id }); // ← видали закладки
     await this.postsRepository.remove(post);
     return { message: 'Deleted' };
   }

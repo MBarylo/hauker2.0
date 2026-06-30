@@ -63,21 +63,21 @@ function App() {
 
         <nav className="nav">
           <Link to="/" className="nav-link">
-            🏠 Home
+            🏠 <span>Home</span>
           </Link>
           <Link
             to={currentUser ? `/user/${currentUser.id}` : '/login'}
             className="nav-link"
           >
-            👤 Profile
+            👤 <span>Profile</span>
           </Link>
           {currentUser?.role === 'admin' && (
             <Link to="/admin" className="nav-link">
-              ⚙️ Admin
+              ⚙️ <span>Admin</span>
             </Link>
           )}
           <button className="nav-link" onClick={() => setSettingsOpen(true)}>
-            ⚙️ Settings
+            ⚙️ <span>Settings</span>
           </button>
         </nav>
         {settingsOpen && (

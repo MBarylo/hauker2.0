@@ -89,10 +89,15 @@ const UserProfile = () => {
     if (isOwnProfile) {
       api.get(`/users/${id}/bookmarks`).then(async (res) => {
         const postIds: string[] = res.data.map((b: any) => b.postId);
-        const posts = await Promise.all(
+        const results = await Promise.allSettled(
           postIds.map((pid) => api.get(`/posts/${pid}`)),
         );
-        setBookmarks(posts.map((r) => r.data));
+        const validPosts = results
+          .filter(
+            (r): r is PromiseFulfilledResult<any> => r.status === 'fulfilled',
+          )
+          .map((r) => r.value.data);
+        setBookmarks(validPosts);
       });
     }
   }, [id]);
