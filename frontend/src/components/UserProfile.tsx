@@ -117,8 +117,6 @@ const UserProfile = () => {
         return reposts;
       case 'liked':
         return liked;
-      case 'commented':
-        return commented;
       case 'bookmarks':
         return bookmarks;
     }
