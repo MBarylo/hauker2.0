@@ -46,7 +46,10 @@ const CommentItem = ({
         <p
           className="post-author"
           style={{ cursor: 'pointer' }}
-          onClick={() => onNavigate(comment.authorId)}
+          onClick={(e) => {
+            e.stopPropagation();
+            onNavigate(comment.authorId);
+          }}
         >
           {authorName}
         </p>
@@ -58,7 +61,10 @@ const CommentItem = ({
           >
             <button
               className="post-menu-btn"
-              onClick={() => setMenuOpen((prev) => !prev)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setMenuOpen((prev) => !prev);
+              }}
             >
               ···
             </button>

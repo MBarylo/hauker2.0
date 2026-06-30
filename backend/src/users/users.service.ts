@@ -91,11 +91,10 @@ export class UsersService {
     return this.usersRepository.save(newUser);
   }
 
-  async update(id: string, username?: string): Promise<User> {
+  async update(id: string, username?: string, bio?: string): Promise<User> {
     const user = await this.getById(id);
-    if (username !== undefined) {
-      user.username = username;
-    }
+    if (username !== undefined) user.username = username;
+    if (bio !== undefined) user.bio = bio;
     return this.usersRepository.save(user);
   }
 

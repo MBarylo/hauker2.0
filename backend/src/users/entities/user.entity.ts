@@ -22,4 +22,7 @@ export class User {
 
   @Column({ nullable: true })
   bannerUrl?: string;
+
+  @Column({ nullable: true, length: 160 })
+  bio?: string;
 }

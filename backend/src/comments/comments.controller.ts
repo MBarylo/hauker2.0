@@ -14,6 +14,11 @@ import { CreateCommentDto } from './dto/create-comment.dto';
 export class CommentsController {
   constructor(private commentsService: CommentsService) {}
 
+  @Get('by-user/:userId')
+  getByUserId(@Param('userId') userId: string) {
+    return this.commentsService.getByUserId(userId);
+  }
+
   // GET /comments/:postId — отримати коментарі поста
   @Get(':postId')
   getByPostId(@Param('postId') postId: string) {

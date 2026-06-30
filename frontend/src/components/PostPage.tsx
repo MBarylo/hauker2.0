@@ -3,10 +3,12 @@ import { useEffect, useState } from 'react';
 import { api } from '../api';
 import { Textarea, Text } from '@chakra-ui/react';
 import { motion } from 'framer-motion';
+import { createPortal } from 'react-dom';
 import type { Comment } from './pack/Comment';
 import type { User } from './pack/User';
 import type { PostType } from './pack/PostType';
 import CommentItem from './CommentsItem';
+import MediaViewer from './MediaViewer';
 
 const PostPage = () => {
   const { id } = useParams();
@@ -20,6 +22,7 @@ const PostPage = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [commentText, setCommentText] = useState('');
   const [error, setError] = useState('');
+  const [mediaViewerIndex, setMediaViewerIndex] = useState<number | null>(null);
 
   useEffect(() => {
     api.get(`/posts/${id}`).then((res) => {
@@ -58,7 +61,6 @@ const PostPage = () => {
     setCommentText('');
     setError('');
 
-    // оновлюємо пост щоб отримати новий commentCount
     const updatedPost = await api.get(`/posts/${id}`);
     setPost(updatedPost.data);
   };
@@ -69,7 +71,6 @@ const PostPage = () => {
     });
     setComments((prev) => prev.filter((c) => c.id !== commentId));
 
-    // оновлюємо пост щоб отримати новий commentCount
     const updatedPost = await api.get(`/posts/${id}`);
     setPost(updatedPost.data);
   };
@@ -100,7 +101,7 @@ const PostPage = () => {
         ← Back
       </button>
 
-      <div className="post">
+      <div className="post" style={{ cursor: 'default' }}>
         <p
           className="post-author"
           onClick={() => navigate(`/user/${post.authorId}`)}
@@ -109,7 +110,37 @@ const PostPage = () => {
           {authorName}
         </p>
         <p className="post-text">{post.content}</p>
+
+        {post.mediaUrls && post.mediaUrls.length > 0 && (
+          <div className="media-grid">
+            {post.mediaUrls.map((url, i) =>
+              url.match(/\.(mp4|mov|avi)$/i) ? (
+                <video key={i} src={url} controls className="media-item" />
+              ) : (
+                <img
+                  key={i}
+                  src={url}
+                  alt=""
+                  className="media-item"
+                  style={{ cursor: 'zoom-in' }}
+                  onClick={() => setMediaViewerIndex(i)}
+                />
+              ),
+            )}
+          </div>
+        )}
       </div>
+
+      {mediaViewerIndex !== null &&
+        createPortal(
+          <MediaViewer
+            post={post}
+            initialIndex={mediaViewerIndex}
+            authorName={authorName}
+            onClose={() => setMediaViewerIndex(null)}
+          />,
+          document.body,
+        )}
 
       <div style={{ marginTop: '1rem' }}>
         <Text fontWeight="bold">Comments ({comments.length})</Text>
