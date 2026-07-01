@@ -109,7 +109,9 @@ const Post = ({
       data: { userId: user.id },
     });
 
-    setPosts((prev: any) => prev.filter((p: any) => p.id !== post.id));
+    setPosts((prev: any) =>
+      prev.filter((p: any) => p.id !== post.id && p.originalPostId !== post.id),
+    );
   };
 
   const handleRepost = async () => {
