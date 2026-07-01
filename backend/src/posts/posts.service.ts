@@ -197,7 +197,10 @@ export class PostsService {
     const post = await this.postsRepository.findOneBy({ id });
     if (!post) throw new NotFoundException('Post not found');
 
-    await this.bookmarksRepository.delete({ postId: id }); // ← видали закладки
+    const reposts = await this.postsRepository.findBy({ originalPostId: id });
+    await this.postsRepository.remove(reposts);
+
+    await this.bookmarksRepository.delete({ postId: id });
     await this.postsRepository.remove(post);
     return { message: 'Deleted' };
   }
@@ -230,7 +233,11 @@ export class PostsService {
     if (post.authorId !== String(userId))
       throw new ForbiddenException('You cannot delete чужий пост');
 
-    await this.bookmarksRepository.delete({ postId: id }); // ← видали закладки
+    // видали всі репости цього поста
+    const reposts = await this.postsRepository.findBy({ originalPostId: id });
+    await this.postsRepository.remove(reposts);
+
+    await this.bookmarksRepository.delete({ postId: id });
     await this.postsRepository.remove(post);
     return { message: 'Deleted' };
   }

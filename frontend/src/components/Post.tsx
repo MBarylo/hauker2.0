@@ -125,6 +125,16 @@ const Post = ({
   const handleDeleteRepost = async () => {
     await api.delete(`/posts/${post.id}/repost`, { data: { userId: user.id } });
     setPosts((prev: any) => prev.filter((p: any) => p.id !== post.id));
+
+    // оновлюємо лічильник оригінального поста
+    if (post.originalPostId) {
+      const updatedOriginal = await api.get(`/posts/${post.originalPostId}`);
+      setPosts((prev: any) =>
+        prev.map((p: any) =>
+          p.id === post.originalPostId ? updatedOriginal.data : p,
+        ),
+      );
+    }
   };
 
   const handleLike = async (e: React.MouseEvent) => {
