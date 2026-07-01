@@ -3,7 +3,7 @@ import { motion } from 'framer-motion';
 import PostList from './PostList';
 import { api } from '../api';
 import type { FormEvent } from 'react';
-import { Input, Textarea, Text } from '@chakra-ui/react';
+import { Input, Textarea } from '@chakra-ui/react';
 import type { PostType } from './pack/PostType';
 import Toast from './Toast';
 
