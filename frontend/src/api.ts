@@ -1,10 +1,9 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: 'http://localhost:3000',
+  baseURL: 'https://hauker-backend.onrender.com',
 });
 
-// додаємо токен до кожного запиту автоматично
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
