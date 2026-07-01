@@ -14,13 +14,10 @@ import { AdminModule } from './admin/admin.module';
     ConfigModule.forRoot({ isGlobal: true }),
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost',
-      port: 5432,
-      username: 'postgres', // ← твій юзер PostgreSQL
-      password: 'MAin-555', // ← твій пароль
-      database: 'hauker', // ← назва бази (створи її заздалегідь)
+      url: process.env.DATABASE_URL,
+      ssl: { rejectUnauthorized: false },
       autoLoadEntities: true,
-      synchronize: true, // автоматично створює таблиці (тільки для розробки)
+      synchronize: true,
     }),
     UsersModule,
     PostsModule,
