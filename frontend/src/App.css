@@ -680,7 +680,8 @@ textarea {
 }
 
 .media-viewer-left {
-  flex: 0 0 calc(90vw - 360px);
+  flex: 1 1 auto;
+  min-width: 0;
   background: transparent;
   display: flex;
   flex-direction: column;
