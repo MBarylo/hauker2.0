@@ -4,6 +4,20 @@
 
 Hauker is a full-stack social network application (Twitter-style) that started as a college coursework project and grew into a production-oriented personal project. Users can create posts with media, follow each other, comment, repost, bookmark content, and manage their profile — all backed by a real database and JWT authentication.
 
+## 📸 Screenshots
+
+|                         Feed                         |                         Profile                         |
+| :--------------------------------------------------: | :-----------------------------------------------------: |
+| ![Feed](./screenshots/photo_2026-08-25_13-30-51.jpg) | ![Profile](./screenshots/photo_2026-08-25_13-30-56.jpg) |
+
+|                     Registration                     |                         Media Viewer                         |
+| :--------------------------------------------------: | :----------------------------------------------------------: |
+| ![Post](./screenshots/photo_2026-08-25_13-31-02.jpg) | ![Media Viewer](./screenshots/photo_2026-08-25_16-33-01.jpg) |
+
+|                      Admin Panel                      |                         Dark Theme                         |
+| :---------------------------------------------------: | :--------------------------------------------------------: |
+| ![Admin](./screenshots/photo_2026-08-25_16-33-15.jpg) | ![Dark Theme](./screenshots/photo_2026-08-25_16-33-40.jpg) |
+
 ## 🚀 Features
 
 ### Authentication
@@ -96,6 +110,7 @@ JWT_SECRET=your_jwt_secret
 CLOUDINARY_CLOUD_NAME=your_cloud_name
 CLOUDINARY_API_KEY=your_api_key
 CLOUDINARY_API_SECRET=your_api_secret
+DATABASE_URL=postgresql://user:password@host:5432/dbname
 ```
 
 Update the PostgreSQL connection settings in `app.module.ts` to match your database, then run:
