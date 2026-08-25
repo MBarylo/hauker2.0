@@ -3,6 +3,7 @@ import {
   CanActivate,
   ExecutionContext,
   ForbiddenException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { UsersService } from '../users/users.service';
@@ -20,11 +21,19 @@ export class AdminGuard implements CanActivate {
     if (!auth) throw new ForbiddenException('No token');
 
     const token = auth.split(' ')[1];
-    const payload = this.jwtService.verify(token, {
-      secret: process.env.JWT_SECRET || 'hauker_secret',
-    });
+
+    let payload: any;
+    try {
+      payload = this.jwtService.verify(token, {
+        secret: process.env.JWT_SECRET || 'hauker_secret',
+      });
+    } catch (err) {
+      // jwt expired / malformed / invalid signature — все веде до 401, а не до 500
+      throw new UnauthorizedException('Токен недійсний або прострочений');
+    }
 
     const user = await this.usersService.getById(payload.id);
+    if (!user) throw new UnauthorizedException('Користувача не знайдено');
     if (user.role !== 'admin') throw new ForbiddenException('Admins only');
 
     request.user = payload;
