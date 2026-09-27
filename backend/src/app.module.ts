@@ -15,7 +15,7 @@ import { AdminModule } from './admin/admin.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      ssl: { rejectUnauthorized: false },
+      ssl: process.env.DATABASE_URL?.includes('neon') ? { rejectUnauthorized: false }: false,
       autoLoadEntities: true,
       synchronize: true,
     }),

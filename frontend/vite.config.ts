@@ -12,4 +12,7 @@ export default defineConfig({
     }),
     tsconfigPaths(),
   ],
+  server: {
+    host: true, // Дозволяє серверу слухати всі IP-адреси (0.0.0.0)
+  },
 });

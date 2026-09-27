@@ -1,7 +1,8 @@
 import axios from 'axios';
 
 export const api = axios.create({
-  baseURL: 'https://hauker-backend.onrender.com',
+  baseURL:
+    import.meta.env.VITE_API_URL || 'https://hauker-backend.onrender.com',
 });
 
 api.interceptors.request.use((config) => {
