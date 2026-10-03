@@ -15,9 +15,11 @@ import { AdminModule } from './admin/admin.module';
     TypeOrmModule.forRoot({
       type: 'postgres',
       url: process.env.DATABASE_URL,
-      ssl: process.env.DATABASE_URL?.includes('neon') ? { rejectUnauthorized: false }: false,
+      ssl: process.env.DATABASE_URL?.includes('neon')
+        ? { rejectUnauthorized: false }
+        : false,
       autoLoadEntities: true,
-      synchronize: true,
+      synchronize: false,
     }),
     UsersModule,
     PostsModule,
