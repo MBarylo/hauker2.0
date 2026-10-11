@@ -34,7 +34,7 @@ export class AdminGuard implements CanActivate {
 
     const user = await this.usersService.getById(payload.id);
     if (!user) throw new UnauthorizedException('Користувача не знайдено');
-    if (user.role !== 'admin') throw new ForbiddenException('Admins only');
+    if (user.role.name !== 'admin') throw new ForbiddenException('Admins only');
 
     request.user = payload;
     return true;

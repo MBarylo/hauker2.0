@@ -1,4 +1,12 @@
-import { Entity, PrimaryColumn, Column } from 'typeorm';
+import {
+  Entity,
+  PrimaryColumn,
+  Column,
+  ManyToOne,
+  CreateDateColumn,
+  JoinColumn,
+} from 'typeorm';
+import { Role } from '../../roles/entities/role.entity';
 
 @Entity()
 export class User {
@@ -14,8 +22,15 @@ export class User {
   @Column()
   password!: string;
 
-  @Column({ default: 'user' })
-  role!: string; // 'user' або 'admin'
+  @Column()
+  roleId!: number;
+
+  @ManyToOne(() => Role, { eager: true })
+  @JoinColumn({ name: 'roleId' })
+  role!: Role;
+
+  @CreateDateColumn()
+  createdAt!: Date;
 
   @Column({ nullable: true })
   avatarUrl?: string;
