@@ -1,4 +1,5 @@
-import { Entity, PrimaryColumn, Column } from 'typeorm';
+import { Entity, PrimaryColumn, Column, JoinColumn, ManyToOne } from 'typeorm';
+import { PostType } from '../../postTypes/entities/postType.entity';
 
 @Entity()
 export class Post {
@@ -16,6 +17,13 @@ export class Post {
 
   @Column({ nullable: true })
   originalPostId?: string;
+
+  @Column()
+  postTypeId?: number;
+
+  @ManyToOne(() => PostType, { eager: true })
+  @JoinColumn({ name: 'postTypeId' })
+  postType?: PostType;
 
   @Column('simple-array', { default: '' })
   likedBy!: string[];
