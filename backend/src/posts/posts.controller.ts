@@ -49,7 +49,6 @@ export class PostsController {
       console.log('files received:', files);
       console.log('files count:', files?.length);
       const mediaUrls = files?.map((f: any) => f.path) ?? [];
-      console.log('mediaUrls:', mediaUrls);
       return await this.postsService.create(dto, mediaUrls);
     } catch (err) {
       console.error('CREATE POST ERROR:', err);
