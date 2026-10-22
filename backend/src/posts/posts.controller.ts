@@ -15,6 +15,11 @@ import { UpdatePostDto } from './dto/update-post.dto';
 import { FilesInterceptor } from '@nestjs/platform-express';
 import { mediaStorage } from '../cloudinary.storage';
 
+const toMedia = (f: any) => ({
+  url: f.path as string,
+  type: f.mimetype?.startsWith('video/') ? 'video' : 'image',
+});
+
 @Controller('posts')
 export class PostsController {
   constructor(private postsService: PostsService) {}
@@ -46,10 +51,8 @@ export class PostsController {
     @UploadedFiles() files: Express.Multer.File[],
   ) {
     try {
-      console.log('files received:', files);
-      console.log('files count:', files?.length);
-      const mediaUrls = files?.map((f: any) => f.path) ?? [];
-      return await this.postsService.create(dto, mediaUrls);
+      const media = (files ?? []).map(toMedia);
+      return await this.postsService.create(dto, media);
     } catch (err) {
       console.error('CREATE POST ERROR:', err);
       throw err;
@@ -85,12 +88,12 @@ export class PostsController {
         : [dto.existingMediaUrls];
     }
 
-    const newMediaUrls = files?.map((f: any) => f.path) ?? [];
+    const newMedia = (files ?? []).map(toMedia);
     return this.postsService.update(
       id,
       dto.content,
       existingMediaUrls,
-      newMediaUrls,
+      newMedia,
     );
   }
 

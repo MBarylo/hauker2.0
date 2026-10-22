@@ -5,11 +5,13 @@ import {
   CreateDateColumn,
   ManyToOne,
   JoinColumn,
+  Unique,
 } from 'typeorm';
 import { User } from '../../users/entities/user.entity';
 import { Post } from '../../posts/entities/post.entity';
 
 @Entity()
+@Unique('UQ_like_user_post', ['userId', 'postId'])
 export class Like {
   @PrimaryGeneratedColumn()
   id!: number;
