@@ -11,11 +11,16 @@ import { CommentsService } from '../comments/comments.service';
 import { Bookmark } from '../users/entities/bookmark.entity';
 import { Like } from '../likes/entities/like.entity';
 import { Media } from '../media/entities/media.entity';
+import { POST_TYPE } from '../constants';
 
 export interface MediaInput {
   url: string;
   type: string; // 'image' | 'video'
 }
+
+const POST_ID = 1;
+const REPOST_ID = 2;
+const POLL_ID = 3;
 
 @Injectable()
 export class PostsService {
@@ -84,6 +89,7 @@ export class PostsService {
     const post = await this.postsRepository.save(
       this.postsRepository.create({
         id: Date.now().toString(),
+        postTypeId: dto.postTypeId ?? POST_TYPE.ORIGINAL,
         ...dto,
       }),
     );
@@ -112,6 +118,7 @@ export class PostsService {
       authorId: original.authorId,
       repostById: String(userId),
       originalPostId: postId,
+      postTypeId: POST_TYPE.REPOST,
     });
     return this.postsRepository.save(repost);
   }

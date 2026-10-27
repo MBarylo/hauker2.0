@@ -9,6 +9,7 @@ import { User } from './entities/user.entity';
 import { Follow } from './entities/follow.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Bookmark } from './entities/bookmark.entity';
+import { ROLE } from '../constants';
 
 @Injectable()
 export class UsersService {
@@ -87,6 +88,7 @@ export class UsersService {
       username: dto.username,
       email: dto.email,
       password: dto.password,
+      roleId: ROLE.USER,
     });
     return this.usersRepository.save(newUser);
   }
