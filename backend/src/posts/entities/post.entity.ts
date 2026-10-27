@@ -24,10 +24,4 @@ export class Post {
   @ManyToOne(() => PostType, { eager: true })
   @JoinColumn({ name: 'postTypeId' })
   postType?: PostType;
-
-  @Column('simple-array', { default: '' })
-  likedBy!: string[];
-
-  @Column('simple-array', { nullable: true })
-  mediaUrls?: string[];
 }
