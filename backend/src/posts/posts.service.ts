@@ -120,6 +120,7 @@ export class PostsService {
       originalPostId: postId,
       postTypeId: POST_TYPE.REPOST,
     });
+    console.log('REPOST ENTITY:', repost);
     return this.postsRepository.save(repost);
   }
 
