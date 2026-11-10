@@ -67,8 +67,8 @@ export class PostsService {
     const post = await this.postsRepository.save(
       this.postsRepository.create({
         id: Date.now().toString(),
-        postTypeId: dto.postTypeId ?? POST_TYPE.ORIGINAL,
         ...dto,
+        postTypeId: dto.postTypeId ?? POST_TYPE.ORIGINAL,
       }),
     );
 
