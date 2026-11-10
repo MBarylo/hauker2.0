@@ -60,8 +60,8 @@ export class PostsController {
   }
 
   @Post('following-feed')
-  getFollowingFeed(@Body('userIds') userIds: string[]) {
-    return this.postsService.getFollowingFeed(userIds);
+  getFollowingFeed(@Body('userId') userId: string) {
+    return this.postsService.getFollowingFeed(userId);
   }
 
   @Post(':id/repost')

@@ -34,12 +34,9 @@ const PostForm = () => {
         setBookmarkedIds(res.data.map((b: any) => b.postId));
       });
 
-      api.get(`/users/${user.id}/following`).then(async (res) => {
-        const followingIds: string[] = res.data.map((u: any) => u.id);
-        const userIds = [...followingIds, user.id];
-        const feedRes = await api.post('/posts/following-feed', { userIds });
-        setFollowingPosts(feedRes.data);
-      });
+      api
+        .post('/posts/following-feed', { userId: user.id })
+        .then((res) => setFollowingPosts(res.data));
     }
   }, []);
 

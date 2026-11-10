@@ -12,6 +12,8 @@ import { Bookmark } from '../users/entities/bookmark.entity';
 import { Like } from '../likes/entities/like.entity';
 import { Media } from '../media/entities/media.entity';
 import { POST_TYPE } from '../constants';
+import { SqlService } from '../sql/sql.service';
+import * as Q from '../sql/sql.queries';
 
 export interface MediaInput {
   url: string;
@@ -34,36 +36,12 @@ export class PostsService {
     private likesRepository: Repository<Like>,
     @InjectRepository(Media)
     private mediaRepository: Repository<Media>,
+    private sql: SqlService,
   ) {}
 
-  async getAll() {
-    const posts = await this.postsRepository.find({
-      order: { id: 'ASC' },
-    });
-    const reversed = [...posts].reverse();
-
-    const originalIds = [
-      ...new Set(reversed.map((p) => p.originalPostId ?? p.id)),
-    ];
-    const likesMap = await this.getLikesMap(originalIds);
-    const mediaMap = await this.getMediaMap(originalIds);
-
-    return Promise.all(
-      reversed.map(async (p) => {
-        const originalId = p.originalPostId ?? p.id;
-        const repostCount = await this.postsRepository.countBy({
-          originalPostId: originalId,
-        });
-        const comments = await this.commentsService.getByPostId(originalId);
-        return {
-          ...p,
-          likedBy: likesMap.get(originalId) ?? [],
-          mediaUrls: mediaMap.get(originalId) ?? [],
-          repostCount,
-          commentCount: comments.length,
-        };
-      }),
-    );
+  async getAll(search?: string) {
+    const rows = await this.sql.query(Q.Q3_FEED, [search?.trim() || null]);
+    return this.enrich(rows);
   }
 
   async getById(id: string) {
@@ -122,6 +100,62 @@ export class PostsService {
     });
     console.log('REPOST ENTITY:', repost);
     return this.postsRepository.save(repost);
+  }
+
+  private async enrich(rows: any[]) {
+    if (rows.length === 0) return [];
+    const ids = [...new Set(rows.map((r) => r.originalPostId ?? r.id))];
+
+    const [likes, media, comments, reposts] = await Promise.all([
+      this.sql.query(
+        `SELECT "postId", "userId" FROM "like"
+       WHERE "postId" = ANY($1) ORDER BY "createdAt"`,
+        [ids],
+      ),
+      this.sql.query(
+        `SELECT "postId", url FROM media
+       WHERE "postId" = ANY($1) ORDER BY id`,
+        [ids],
+      ),
+      this.sql.query(
+        `SELECT "postId", count(*)::int AS n FROM comment
+       WHERE "postId" = ANY($1) GROUP BY "postId"`,
+        [ids],
+      ),
+      this.sql.query(
+        `SELECT "originalPostId" AS "postId", count(*)::int AS n FROM post
+       WHERE "originalPostId" = ANY($1) GROUP BY "originalPostId"`,
+        [ids],
+      ),
+    ]);
+
+    const lists = (items: any[], field: string) => {
+      const m = new Map<string, any[]>();
+      for (const i of items) {
+        const list = m.get(i.postId) ?? [];
+        list.push(i[field]);
+        m.set(i.postId, list);
+      }
+      return m;
+    };
+    const counts = (items: any[]) =>
+      new Map<string, number>(items.map((i) => [i.postId, i.n]));
+
+    const likedBy = lists(likes, 'userId');
+    const mediaUrls = lists(media, 'url');
+    const commentCount = counts(comments);
+    const repostCount = counts(reposts);
+
+    return rows.map((r) => {
+      const oid = r.originalPostId ?? r.id; // лайки, медіа й коментарі належать оригіналу
+      return {
+        ...r,
+        likedBy: likedBy.get(oid) ?? [],
+        mediaUrls: mediaUrls.get(oid) ?? [],
+        commentCount: commentCount.get(oid) ?? 0,
+        repostCount: repostCount.get(oid) ?? 0,
+      };
+    });
   }
 
   async toggleLike(postId: string, userId: string) {
@@ -201,29 +235,8 @@ export class PostsService {
   }
 
   async getLikedByUser(userId: string) {
-    const likes = await this.likesRepository.find({
-      where: { userId: String(userId) },
-      relations: { post: true },
-      order: { createdAt: 'DESC' },
-    });
-    const posts = likes.map((l) => l.post).filter((p) => !p.repostById);
-    const likesMap = await this.getLikesMap(posts.map((p) => p.id));
-    const mediaMap = await this.getMediaMap(posts.map((p) => p.id));
-    return Promise.all(
-      posts.map(async (p) => {
-        const repostCount = await this.postsRepository.countBy({
-          originalPostId: p.id,
-        });
-        const comments = await this.commentsService.getByPostId(p.id);
-        return {
-          ...p,
-          likedBy: likesMap.get(p.id) ?? [],
-          mediaUrls: mediaMap.get(p.id) ?? [],
-          repostCount,
-          commentCount: comments.length,
-        };
-      }),
-    );
+    const rows = await this.sql.query(Q.Q7_LIKED, [String(userId)]);
+    return this.enrich(rows);
   }
 
   async getCommentedByUser(userId: string) {
@@ -252,37 +265,9 @@ export class PostsService {
     );
   }
 
-  async getFollowingFeed(userIds: string[]) {
-    const posts = await this.postsRepository.find();
-    const feed = [...posts].reverse().filter(
-      (p) =>
-        (userIds.includes(p.authorId) && !p.repostById) || // оригінальні пости
-        (p.repostById && userIds.includes(p.repostById)), // репости юзерів зі списку
-    );
-
-    const originalIds = [...new Set(feed.map((p) => p.originalPostId ?? p.id))];
-    const likesMap = await this.getLikesMap(originalIds);
-    const mediaMap = await this.getMediaMap(originalIds);
-
-    const result = await Promise.all(
-      feed.map(async (p) => {
-        const originalId = p.originalPostId ?? p.id;
-        const repostCount = await this.postsRepository.countBy({
-          originalPostId: originalId,
-        });
-        const comments = await this.commentsService.getByPostId(originalId);
-
-        return {
-          ...p,
-          likedBy: likesMap.get(originalId) ?? [],
-          mediaUrls: mediaMap.get(originalId) ?? [],
-          repostCount,
-          commentCount: comments.length,
-        };
-      }),
-    );
-
-    return result;
+  async getFollowingFeed(userId: string) {
+    const rows = await this.sql.query(Q.Q6_FOLLOWING_FEED, [userId]);
+    return this.enrich(rows);
   }
 
   async adminDelete(id: string) {
