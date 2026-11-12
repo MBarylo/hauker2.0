@@ -4,6 +4,8 @@ import { api } from '../api';
 import { motion } from 'framer-motion';
 import type { User } from './pack/User';
 import type { PostType } from './pack/PostType';
+import AdminReference from './AdminReference';
+import AdminReport from './AdminReport';
 
 type Comment = {
   id: string;
@@ -12,7 +14,7 @@ type Comment = {
   postId: string;
 };
 
-type AdminTab = 'users' | 'posts' | 'comments';
+type AdminTab = 'users' | 'posts' | 'comments' | 'reference' | 'report';
 
 const dangerBtn: React.CSSProperties = {
   padding: '6px 12px',
@@ -74,6 +76,8 @@ const AdminPanel = () => {
     { key: 'users', label: `👥 Users (${users.length})` },
     { key: 'posts', label: `📝 Posts (${posts.length})` },
     { key: 'comments', label: `💬 Comments (${comments.length})` },
+    { key: 'reference', label: '📚 Reference' },
+    { key: 'report', label: '🖨 Report' },
   ];
 
   return (
@@ -84,6 +88,7 @@ const AdminPanel = () => {
     >
       {/* заголовок */}
       <div
+        className="no-print"
         style={{
           background: 'var(--bg-secondary)',
           border: '1px solid var(--border)',
@@ -100,6 +105,7 @@ const AdminPanel = () => {
 
       {/* таби */}
       <div
+        className="no-print"
         style={{
           display: 'flex',
           gap: 0,
@@ -114,8 +120,9 @@ const AdminPanel = () => {
             key={t.key}
             onClick={() => setTab(t.key)}
             style={{
-              flex: 1,
-              padding: '10px 4px',
+              flex: '1 0 auto',
+              padding: '10px 12px',
+              whiteSpace: 'nowrap',
               background: tab === t.key ? 'var(--accent)' : 'transparent',
               color: tab === t.key ? 'white' : 'var(--text-muted)',
               border: 'none',
@@ -298,6 +305,8 @@ const AdminPanel = () => {
           ))}
         </div>
       )}
+      {tab === 'reference' && <AdminReference />}
+      {tab === 'report' && <AdminReport admin={currentUser?.username ?? ''} />}
     </motion.div>
   );
 };

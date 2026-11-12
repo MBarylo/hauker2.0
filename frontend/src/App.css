@@ -1051,3 +1051,109 @@ body.light .chakra-button[data-variant='solid'] {
     padding: 20px;
   }
 }
+
+/* ===== REPORT ===== */
+.report {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  padding: 20px;
+}
+
+.report-title {
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.report-meta {
+  color: var(--text-muted);
+  font-size: 13px;
+  margin: 4px 0 16px;
+}
+
+.report-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+
+.report-table th,
+.report-table td {
+  border-bottom: 1px solid var(--border);
+  padding: 6px 8px;
+  text-align: left;
+  word-break: break-word;
+}
+
+.report-table tfoot td {
+  font-weight: 600;
+  border-top: 2px solid var(--border);
+}
+
+.report-sign {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 40px;
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+@media (max-width: 768px) {
+  .report {
+    overflow-x: auto;
+  }
+  .report-table {
+    min-width: 560px;
+  }
+}
+
+/* ===== PRINT ===== */
+@page {
+  margin: 15mm;
+}
+
+@media print {
+  .sidebar,
+  .no-print {
+    display: none !important;
+  }
+
+  .layout,
+  .feed {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .feed-inner {
+    max-width: none !important;
+    padding: 0 !important;
+  }
+
+  body,
+  .report,
+  .report * {
+    background: #fff !important;
+    color: #000 !important;
+    box-shadow: none !important;
+  }
+
+  .report {
+    border: none;
+    padding: 0;
+  }
+
+  .report-table th,
+  .report-table td {
+    border-bottom: 1px solid #999;
+  }
+
+  .report-table thead {
+    display: table-header-group;
+  }
+
+  .report-table tr {
+    page-break-inside: avoid;
+  }
+}
