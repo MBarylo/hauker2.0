@@ -10,6 +10,7 @@ import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
 import { RolesModule } from './roles/role.module';
 import { PostTypesModule } from './postTypes/postType.module';
+import { NotificationsModule } from './notifications/notification.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { PostTypesModule } from './postTypes/postType.module';
     PostTypesModule,
     AuthModule,
     AdminModule,
+    NotificationsModule,
   ],
   controllers: [AppController],
   providers: [AppService],

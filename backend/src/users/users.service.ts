@@ -10,6 +10,8 @@ import { Follow } from './entities/follow.entity';
 import { CreateUserDto } from './dto/create-user.dto';
 import { Bookmark } from './entities/bookmark.entity';
 import { ROLE } from '../constants';
+import { NotificationsService } from '../notifications/notification.service';
+import { SqlService } from '../sql/sql.service';
 
 @Injectable()
 export class UsersService {
@@ -20,6 +22,8 @@ export class UsersService {
     private bookmarksRepository: Repository<Bookmark>,
     @InjectRepository(Follow)
     private followsRepository: Repository<Follow>,
+    private notifications: NotificationsService,
+    private sql: SqlService,
   ) {}
 
   getAll(): Promise<User[]> {
@@ -41,6 +45,7 @@ export class UsersService {
 
     if (existing) {
       await this.followsRepository.remove(existing);
+      await this.notifications.remove(followingId, followerId, 'follow');
       return { following: false };
     }
 
@@ -50,6 +55,7 @@ export class UsersService {
       followingId: String(followingId),
     });
     await this.followsRepository.save(follow);
+    await this.notifications.create(followingId, followerId, 'follow');
     return { following: true };
   }
 
@@ -101,8 +107,50 @@ export class UsersService {
   }
 
   async delete(id: string): Promise<{ message: string }> {
-    const user = await this.getById(id);
-    await this.usersRepository.remove(user);
+    await this.getById(id); // кине NotFound, якщо користувача немає
+
+    await this.sql.transaction(async (db) => {
+      // 1. Пости користувача та його репости (репости чужих постів теж зникають)
+      const { rows } = await db.query(
+        `SELECT id FROM post WHERE "authorId" = $1 OR "repostById" = $1`,
+        [id],
+      );
+      const postIds: string[] = rows.map((r) => r.id);
+
+      if (postIds.length > 0) {
+        await db.query(`DELETE FROM "like" WHERE "postId" = ANY($1)`, [
+          postIds,
+        ]);
+        await db.query(`DELETE FROM media WHERE "postId" = ANY($1)`, [postIds]);
+        await db.query(`DELETE FROM bookmark WHERE "postId" = ANY($1)`, [
+          postIds,
+        ]);
+        await db.query(`DELETE FROM comment WHERE "postId" = ANY($1)`, [
+          postIds,
+        ]);
+        await db.query(`DELETE FROM notification WHERE "postId" = ANY($1)`, [
+          postIds,
+        ]);
+        await db.query(`DELETE FROM post WHERE id = ANY($1)`, [postIds]);
+      }
+
+      // 2. Власна активність користувача на чужих постах
+      await db.query(`DELETE FROM "like" WHERE "userId" = $1`, [id]);
+      await db.query(`DELETE FROM comment WHERE "authorId" = $1`, [id]);
+      await db.query(`DELETE FROM bookmark WHERE "userId" = $1`, [id]);
+      await db.query(
+        `DELETE FROM follow WHERE "followerId" = $1 OR "followingId" = $1`,
+        [id],
+      );
+      await db.query(
+        `DELETE FROM notification WHERE "userId" = $1 OR "actorId" = $1`,
+        [id],
+      );
+
+      // 3. Сам користувач
+      await db.query(`DELETE FROM "user" WHERE id = $1`, [id]);
+    });
+
     return { message: 'User deleted' };
   }
 

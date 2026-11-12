@@ -14,6 +14,7 @@ import { Media } from '../media/entities/media.entity';
 import { POST_TYPE } from '../constants';
 import { SqlService } from '../sql/sql.service';
 import * as Q from '../sql/sql.queries';
+import { NotificationsService } from '../notifications/notification.service';
 
 export interface MediaInput {
   url: string;
@@ -37,6 +38,7 @@ export class PostsService {
     @InjectRepository(Media)
     private mediaRepository: Repository<Media>,
     private sql: SqlService,
+    private notifications: NotificationsService,
   ) {}
 
   async getAll(search?: string) {
@@ -174,9 +176,21 @@ export class PostsService {
 
     if (existing) {
       await this.likesRepository.remove(existing);
+      await this.notifications.remove(
+        originalPost.authorId,
+        uid,
+        'like',
+        originalPost.id,
+      );
     } else {
       await this.likesRepository.save(
         this.likesRepository.create({ postId: originalPost.id, userId: uid }),
+      );
+      await this.notifications.create(
+        originalPost.authorId,
+        uid,
+        'like',
+        originalPost.id,
       );
     }
 
@@ -221,6 +235,10 @@ export class PostsService {
     await this.likesRepository.delete({ postId: In(postIds) });
     await this.mediaRepository.delete({ postId: In(postIds) });
     await this.bookmarksRepository.delete({ postId: In(postIds) });
+    await this.sql.execute(
+      `DELETE FROM notification WHERE "postId" = ANY($1)`,
+      [postIds],
+    );
   }
 
   async deleteRepost(postId: string, userId: string) {

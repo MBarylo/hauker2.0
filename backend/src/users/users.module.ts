@@ -5,11 +5,12 @@ import { UsersController } from './users.controller';
 import { User } from './entities/user.entity';
 import { Follow } from './entities/follow.entity';
 import { Bookmark } from './entities/bookmark.entity';
+import { SqlService } from '../sql/sql.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([User, Bookmark, Follow])],
   controllers: [UsersController],
-  providers: [UsersService],
+  providers: [UsersService, SqlService],
   exports: [UsersService],
 })
 export class UsersModule {}
